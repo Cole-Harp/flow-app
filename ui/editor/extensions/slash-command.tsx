@@ -247,11 +247,13 @@ export const updateScrollView = (container: HTMLElement, item: HTMLElement) => {
 };
 
 const CommandList = ({
+  id,
   items,
   command,
   editor,
   range,
 }: {
+  id: string
   items: CommandItemProps[];
   command: any;
   editor: any;
@@ -259,8 +261,8 @@ const CommandList = ({
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const { complete, isLoading } = useCompletion({
-    id: "novel",
+  const {  complete, isLoading } = useCompletion({
+    id: id,
     api: "/api/generate",
     onResponse: (response) => {
       if (response.status === 429) {
