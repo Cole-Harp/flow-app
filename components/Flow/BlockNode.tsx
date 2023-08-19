@@ -1,12 +1,12 @@
-import { Handle, Position, NodeResizer } from "reactflow";
+import { Handle, Position } from "reactflow";
 import Editor from "@/ui/editor";
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface BlockNodeProps {
   id: string;
   data: {
     content: string;
-    updateNodeText: (nodeId: string, newText: string) => void;
+    updateNodeText: (id: string, content: string) => void;
   };
 }
 
@@ -16,7 +16,7 @@ const nodeStyle = {
   display: "inline-flex",
   flexDirection: "column" as const,
   alignItems: "center",
-  padding: "20px",
+  padding: "10px",
 };
 
 
@@ -28,9 +28,9 @@ const Editor_: React.FC<BlockNodeProps> = ({ id, data }) => {
   };
 
   return (
-    <div style={{ ...nodeStyle, width: "600px", position: "relative" }}>
+    <div style={{ ...nodeStyle, minWidth: "400px", position: "relative"}}>
       <Handle type="target" position={Position.Top} />
-      <div className="text-node-editable nodrag" style={{ width: "597px" }}>
+      <div className="text-node-editable nodrag" style={{ minWidth: "400px" }}>
         <Editor id={id} onChange={setContent} onSave={handleSave} defaultContent={localContent} />
       </div>
       <Handle type="source" position={Position.Bottom} />

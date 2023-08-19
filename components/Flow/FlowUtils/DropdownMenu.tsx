@@ -28,19 +28,19 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   }, [x, y]);
 
   const handleAddTextNode = () => {
-    addTextNode(position.x, position.y);
+    addTextNode(x, y);
     toggleDropdown();
   };
 
   const handleAddSimpleTextNode = () => {
-    console.log("HERE2", position.x, position.y);
-    addSimpleTextNode(position.x, position.y);
+    console.log("HERE2", x, y);
+    addSimpleTextNode(x, y);
     toggleDropdown();
   };
 
-    const stopPropagation = (event: React.MouseEvent) => {
-      event.stopPropagation();
-    };
+    // const stopPropagation = (event: React.MouseEvent) => {
+    //   event.stopPropagation();
+    // };
 
   return (
     <div className="dropdown-menu" style={menuStyle}>

@@ -3,7 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 
 import styles from "@/app/styles/Home.module.css";
-import { findOrCreateUser } from "@/lib/serv-actions/findOrCreateUser";
+// import { findOrCreateUser } from "@/lib/serv-actions/findOrCreateUser";
 
 const Home: NextPage = () => {
   return (

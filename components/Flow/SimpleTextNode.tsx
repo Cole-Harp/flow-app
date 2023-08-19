@@ -5,7 +5,7 @@ interface TextNodeProps {
   id: string;
   data: {
     text: string;
-    updateNodeText: (nodeId: string, newText: string) => void;
+    updateNodeText: (id: string, text: string) => void;
   };
 }
 

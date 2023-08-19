@@ -7,7 +7,7 @@ type UseUndoRedoOptions = {
   enableShortcuts: boolean;
 };
 
-type UseUndoRedo = (options?: UseUndoRedoOptions) => {
+type UseUndoRedo = () => {
   undo: () => void;
   redo: () => void;
   takeSnapshot: () => void;

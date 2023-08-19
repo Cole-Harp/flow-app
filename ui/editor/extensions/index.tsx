@@ -27,12 +27,12 @@ export const TiptapExtensions = [
   StarterKit.configure({
     bulletList: {
       HTMLAttributes: {
-        class: "list-disc list-inside leading-3 -mt-2",
+        class: "list-disc list-outside leading-3 ml-5mr-2",
       },
     },
     orderedList: {
       HTMLAttributes: {
-        class: "list-decimal list-inside leading-3 -mt-2",
+        class: "list-decimal list-outside leading-3 ml-5 mr-2",
       },
     },
     listItem: {
@@ -88,7 +88,7 @@ export const TiptapExtensions = [
     },
   }).configure({
     HTMLAttributes: {
-      class: "mt-4 mb-6 border-t border-stone-300",
+      class: "ml-5 mr-2 mt-4 mb-6 border-t border-stone-300",
     },
   }),
   TiptapLink.configure({
@@ -113,7 +113,7 @@ export const TiptapExtensions = [
       if (node.type.name === "heading") {
         return `Heading ${node.attrs.level}`;
       }
-      return "Press '/' for commands, or '++' for AI autocomplete...";
+      return "Press '/' for commands...";
     },
     includeChildren: true,
   }),

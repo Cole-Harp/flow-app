@@ -1,8 +1,6 @@
 "use client";
 
 import { Dispatch, ReactNode, SetStateAction, createContext } from "react";
-import { ThemeProvider, useTheme } from "next-themes";
-import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/react";
 import { displayFontMapper, defaultFontMapper } from "@/app/styles/fonts";
 import useLocalStorage from "@/lib/hooks/use-local-storage";

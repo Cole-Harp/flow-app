@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useState, useCallback, useRef } from "react";
 
 import ReactFlow, {
   ReactFlowProvider,
@@ -25,7 +25,6 @@ import ReactFlow, {
   OnNodesDelete,
   OnEdgesDelete,
   updateEdge,
-  Position,
 } from "reactflow";
 import 'reactflow/dist/style.css';
 // import "@/styles/editor.css";
@@ -45,7 +44,6 @@ import { IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import UpgradeIcon from "@mui/icons-material/Upgrade";
 import BlockNode from "./BlockNode";
-import usePrismaStorage from "@/lib/hooks/use-local-storage";
 import { updateFlow } from "@/lib/serv-actions/updateFlow";
 
 const nodeTypes = {
@@ -64,7 +62,7 @@ const fitViewOptions = {
   padding: 3,
 };
 
-function FlowInstance({ flow }: { flow: FlowInstance }) {
+function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   console.log(flow.nodes);
   const initial_nodes = JSON.parse(flow.nodes as string);
   const initial_edges = JSON.parse(flow.edges as string);
@@ -75,7 +73,7 @@ function FlowInstance({ flow }: { flow: FlowInstance }) {
   const [undraggableNodeIds, setUndraggableNodeIds] = useState(
     new Set<string>(),
   );
-  const { setViewport, zoomIn, zoomOut } = useReactFlow();
+  const { setViewport } = useReactFlow();
   const { undo, redo, canUndo, canRedo, takeSnapshot } = useUndoRedo();
   const edgeUpdateSuccessful = useRef(true);
 
@@ -84,7 +82,7 @@ function FlowInstance({ flow }: { flow: FlowInstance }) {
   const reactFlowWrapper = useRef(null);
   const connectingNodeId = useRef(null);
   const { project } = useReactFlow();
-  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  // const [reactFlowInstance, setReactFlowInstance] = useState(null);
 
   const [helperLineHorizontal, setHelperLineHorizontal] = useState<
     number | undefined
@@ -290,7 +288,7 @@ function FlowInstance({ flow }: { flow: FlowInstance }) {
         }),
       );
     },
-    [setNodes, setEdges, reactFlowInstance],
+    [setNodes, setEdges],
   );
 
   const addSimpleTextNode = useCallback(
@@ -319,7 +317,7 @@ function FlowInstance({ flow }: { flow: FlowInstance }) {
         }),
       );
     },
-    [setNodes, setEdges, reactFlowInstance],
+    [setNodes, setEdges],
   );
   const toggleDropdown = useCallback(() => {
     setDropdownVisible(!dropdownVisible);
@@ -468,7 +466,7 @@ function ReactFlowWrapper(props: any) {
   console.log("WRAPPER", props)
   return (
     <ReactFlowProvider>
-      <FlowInstance  flow = {...props} />
+      <FlowInstancePage  flow = {...props} />
     </ReactFlowProvider>
   );
 }

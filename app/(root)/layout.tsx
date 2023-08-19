@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/navbar";
 import { Sidebar } from "@/components/sidebar";
+import { ReactNode } from "react";
 
 export const metadata = {
   title: 'Next.js',
@@ -9,7 +10,7 @@ export const metadata = {
 const RootLayout = ({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) => {
   return (
     <div className = "h-full">

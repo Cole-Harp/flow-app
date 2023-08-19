@@ -10,6 +10,7 @@ import "./styles/prosemirror.css";
 
 import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/components/theme-provider'
+import { ReactNode } from 'react';
 // import { Toaster } from '@/components/ui/toaster';
 // import { ProModal } from '@/components/pro-modal';
 
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
 
 import Providers from './providers';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
