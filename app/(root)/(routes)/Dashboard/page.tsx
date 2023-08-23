@@ -1,7 +1,7 @@
-import { SearchInput } from "@/components/search-input";
+import { SearchInput } from "@/components/flow_dashboard/Dashboard_Ui/search-input";
 
 import prisma_db from "@/lib/prisma_db";
-import { Folders } from "@/components/folders";
+import { Folders } from "@/components/flow_dashboard/Dashboard_Ui/folders";
 import { findOrCreateUser } from "@/lib/serv-actions/findOrCreateUser";
 
 import Flow_Dashboard from "@/components/flow_dashboard/dashboard";

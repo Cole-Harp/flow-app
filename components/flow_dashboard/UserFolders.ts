@@ -1,7 +1,6 @@
 //HOOK
 import { useState } from "react";
 import { Folder } from "@prisma/client";
-import { FabProps } from "@mui/material";
 
 type UseFoldersResult = {
   folders: Folder[];

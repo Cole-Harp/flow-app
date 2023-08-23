@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
-import { useDebounce } from "../lib/hooks/use-debounce";
+import { useDebounce } from "../../../lib/hooks/use-debounce";
 
 export const SearchInput = () => {
   const router = useRouter();
@@ -38,8 +38,8 @@ export const SearchInput = () => {
   }, [debouncedValue, router, categoryId])
 
   return (
-    <div className="relative">
-      <Search className="absolute h-4 w-4 top-3 left-4 text-muted-foreground" />
+    <div className="relative pt-4">
+      <Search className="absolute h-12 w-4 top-3 left-3 right-0 text-muted-foreground" />
       <Input
         onChange={onChange}
         value={value}

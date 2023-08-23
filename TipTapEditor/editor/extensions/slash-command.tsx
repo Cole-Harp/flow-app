@@ -25,12 +25,12 @@ import {
   Code,
   CheckSquare,
 } from "lucide-react";
-import LoadingCircle from "@/ui/icons/loading-circle";
+import LoadingCircle from "@/TipTapEditor/icons/loading-circle";
 import { toast } from "sonner";
 import va from "@vercel/analytics";
-import Magic from "@/ui/icons/magic";
+import Magic from "@/TipTapEditor/icons/magic";
 import { getPrevText } from "../getPrevText";
-import { startImageUpload } from "@/ui/editor/plugins/upload-images";
+import { startImageUpload } from "@/TipTapEditor/editor/plugins/upload-images";
 
 interface CommandItemProps {
   title: string;
@@ -147,12 +147,7 @@ const getSuggestionItems = ({ query }: { query: string }) => {
       searchTerms: ["subtitle", "small"],
       icon: <Heading3 size={18} />,
       command: ({ editor, range }: CommandProps) => {
-        editor
-          .chain()
-          .focus()
-          .deleteRange(range)
-          .setNode("heading", { level: 3 })
-          .run();
+        editor.chain().focus().deleteRange(range).setNode("heading",{ level: 3 }).run();
       },
     },
     {

@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
-import { kv } from "@vercel/kv";
-import { Ratelimit } from "@upstash/ratelimit";
+// import { kv } from "@vercel/kv";
+// import { Ratelimit } from "@upstash/ratelimit";
 
 const config = new Configuration({
   apiKey: "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",

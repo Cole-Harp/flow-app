@@ -1,14 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  important: true,
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/**/**/**/**.{ts,tsx}',
-    './app/**/**/**/**/*.{ts,tsx}',
-    './src/**/**/**.{ts,tsx}',
-
-
-    "./ui/**/**/*.{js,ts,jsx,tsx}",
+    './components/**/**/**/**/*.{ts,tsx}',
+    './app/**/**/**/*.{ts,tsx}',
+    "./TipTapEditor/**/**/*.{js,ts,jsx,tsx}",
+    "./app/(flow)/Flow/[flowId]/page.tsx"
 	],
   theme: {
     container: {
@@ -16,11 +14,34 @@ module.exports = {
       padding: "2rem",
       screens: {
         "2xl": "1400px",
-      },
+      },        
+      fontSize: {
+        sm: ['14px', '20px'],
+        base: ['16px', '24px'],
+        lg: ['20px', '28px'],
+        xl: ['24px', '32px'],
+      }
     },
     extend: {
+      fontFamily: {
+        display: ["var(--font-display)", "system-ui", "sans-serif"],
+        default: ["var(--font-default)", "system-ui", "sans-serif"],
+      },
       colors: {
-        border: "hsl(var(--border))",
+        white: "var(--novel-white)",
+        stone: {
+          50: "var(--novel-stone-50)",
+          100: "var(--novel-stone-100)",
+          200: "var(--novel-stone-200)",
+          300: "var(--novel-stone-300)",
+          400: "var(--novel-stone-400)",
+          500: "var(--novel-stone-500)",
+          600: "var(--novel-stone-600)",
+          700: "var(--novel-stone-700)",
+          800: "var(--novel-stone-800)",
+          900: "var(--novel-stone-900)",
+        },
+        border: "hsl(var(--border))", 
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
@@ -75,5 +96,7 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate","@tailwindcss/typography")],
+  plugins: [    // Tailwind plugins
+    require("@tailwindcss/typography"),
+    require("tailwindcss-animate")],
 }

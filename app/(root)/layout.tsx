@@ -1,6 +1,7 @@
-import { Navbar } from "@/components/navbar";
-import { Sidebar } from "@/components/sidebar";
-import { ReactNode } from "react";
+import { Navbar } from "@/components/flow_dashboard/Dashboard_Ui/navbar";
+import { Sidebar } from "@/components/flow_dashboard/Dashboard_Ui/sidebar";
+import React from "react";
+
 
 export const metadata = {
   title: 'Next.js',
@@ -10,7 +11,7 @@ export const metadata = {
 const RootLayout = ({
   children,
 }: {
-  children: ReactNode
+  children: React.ReactNode
 }) => {
   return (
     <div className = "h-full">

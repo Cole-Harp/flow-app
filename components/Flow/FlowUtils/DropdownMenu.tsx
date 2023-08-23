@@ -1,4 +1,3 @@
-// components/DropdownMenu.tsx
 import React, { useState, useEffect } from "react";
 
 interface DropdownMenuProps {
@@ -37,10 +36,6 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
     addSimpleTextNode(x, y);
     toggleDropdown();
   };
-
-    // const stopPropagation = (event: React.MouseEvent) => {
-    //   event.stopPropagation();
-    // };
 
   return (
     <div className="dropdown-menu" style={menuStyle}>

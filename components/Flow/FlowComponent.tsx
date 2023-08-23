@@ -27,28 +27,21 @@ import ReactFlow, {
   updateEdge,
 } from "reactflow";
 import 'reactflow/dist/style.css';
-// import "@/styles/editor.css";
-// import "@/styles/prosemirror.css";
-import CustomNode from "../../components/Flow/CustomNode";
-import TextNode from "../../components/Flow/TextNode";
-import SimpleTextNode from "../../components/Flow/SimpleTextNode";
-// import BlockNode from "../../components/Flow/BlockNode";
+import "@/app/styles/prosemirror.css";
+import SimpleTextNode from "./Nodes/SimpleTextNode";
+import BlockNode from "./Nodes/BlockNode";
 import { getHelperLines } from "../../components/Flow/FlowUtils/utils";
 import HelperLines from "../../components/Flow/FlowUtils/HelperLines";
 import useUndoRedo from "../../components/Flow/FlowUtils/useUndoRedo";
-// FlowInstance.tsx
 import DropdownMenu from "../../components/Flow/FlowUtils/DropdownMenu";
 
 import { FlowInstance } from "@prisma/client";
 import { IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import UpgradeIcon from "@mui/icons-material/Upgrade";
-import BlockNode from "./BlockNode";
 import { updateFlow } from "@/lib/serv-actions/updateFlow";
 
 const nodeTypes = {
-  custom: CustomNode,
-  text: TextNode,
   simpleText: SimpleTextNode,
   blockNode: BlockNode,
 };
@@ -67,12 +60,8 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   const initial_nodes = JSON.parse(flow.nodes as string);
   const initial_edges = JSON.parse(flow.edges as string);
   const [nodes, setNodes] = useNodesState<Node>(initial_nodes || []);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(
-    initial_edges || [],
-  );
-  const [undraggableNodeIds, setUndraggableNodeIds] = useState(
-    new Set<string>(),
-  );
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initial_edges || []);
+  const [undraggableNodeIds, setUndraggableNodeIds] = useState(new Set<string>(),);
   const { setViewport } = useReactFlow();
   const { undo, redo, canUndo, canRedo, takeSnapshot } = useUndoRedo();
   const edgeUpdateSuccessful = useRef(true);
@@ -158,20 +147,6 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     },
     [setNodes],
   );
-
-  // const updateBlockNodeText = useCallback(
-  //   (nodeId: string, newText: string) => {
-  //     setNodes((prevNodes) =>
-  //       prevNodes.map((node) => {
-  //         if (node.id === nodeId) {
-  //           return { ...node, data: { ...node.data, text: newText } };
-  //         }
-  //         return node;
-  //       }),
-  //     );
-  //   },
-  //   [setNodes],
-  // );
 
   const onNodesDelete: OnNodesDelete = useCallback(
     (deleted: Node[]) => {
@@ -262,35 +237,6 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     setNodes((ns: any[]) => ns.concat(newNode));
   }, [setNodes]);
 
-  const addTextNode = useCallback(
-    (x: any, y: any) => {
-      const newNode = {
-        id: Math.random().toString(36),
-        type: "text",
-        position: project({
-          x,
-          y,
-        }),
-        data: {
-          label: "New Text Node",
-          text: "New Text Node",
-        },
-      };
-
-      setNodes((ns: any[]) => ns.concat(newNode));
-
-      const edgeId = Math.random().toString(36);
-      setEdges((eds: any[]) =>
-        eds.concat({
-          id: edgeId,
-          source: connectingNodeId.current,
-          target: newNode.id,
-        }),
-      );
-    },
-    [setNodes, setEdges],
-  );
-
   const addSimpleTextNode = useCallback(
     (x: any, y: any) => {
       const newNode = {
@@ -355,18 +301,6 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     },
     [reactFlowWrapper, setViewport],
   );
-  // const onPanesClick = useCallback(
-  //   (event: any) =>{
-
-  //   const { top, left } = reactFlowWrapper.current.getBoundingClientRect();
-  //   const x = event.clientX - left;
-  //   const y = event.clientY - top;
-  //   console.log(x, y)
-  //   setDropdownPosition({ x, y});
-
-  //   },
-  //   [reactFlowWrapper, setViewport]
-  // );
 
   const onNodeDragStart: NodeDragHandler = useCallback(() => {
     // 👇 make dragging a node undoable
@@ -393,7 +327,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     >
       <ReactFlow
         nodes={nodes.map((node) =>
-          node.type === "text" || "simpleText" || "blockNode"
+          node.type === "simpleText" || "blockNode"
             ? { ...node, data: { ...node.data, updateNodeText } }
             : node,
         )}
@@ -414,7 +348,6 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         defaultEdgeOptions={defaultEdgeOptions}
         connectionLineType={ConnectionLineType.SmoothStep}
         onNodeDoubleClick={onElementDoubleClick}
-        // onDoubleClick={onPanesClick}
 
         fitView
         fitViewOptions={fitViewOptions}
@@ -453,7 +386,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
           <DropdownMenu
             position={dropdownPosition}
             toggleDropdown={toggleDropdown}
-            addTextNode={addTextNode}
+            addTextNode={addBlockNode}
             addSimpleTextNode={addSimpleTextNode}
           />
         )}

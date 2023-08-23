@@ -16,6 +16,10 @@
   height: 0;
 }
 
+.ProseMirror:focus {
+  outline: none;
+}
+
 /* Custom image styles */
 
 .ProseMirror img {
@@ -27,7 +31,7 @@
   }
 
   &.ProseMirror-selectednode {
-    outline: 3px solid #5abbf7;
+    outline: 3px solid #ffffff;
     filter: brightness(90%);
   }
 }
@@ -66,6 +70,7 @@ ul[data-type="taskList"] li > label {
 @media screen and (max-width: 768px) {
   ul[data-type="taskList"] li > label {
     margin-right: 0.5rem;
+    margin-left: 0.5rem;
   }
 }
 

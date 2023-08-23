@@ -3,7 +3,7 @@ import { Menu } from "lucide-react"
 import { Sheet,
         SheetContent,
         SheetTrigger} from "@/components/ui/sheet"
-import { Sidebar } from "@/components/sidebar"
+import { Sidebar } from "@/components/flow_dashboard/Dashboard_Ui/sidebar"
 export const MobileSidebar = () => {
     return (
         <Sheet>

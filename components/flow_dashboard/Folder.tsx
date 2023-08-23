@@ -1,28 +1,20 @@
-"use client";
 import { useState } from "react";
-// import { Folder as FolderType, FlowInstance } from "@prisma/client";
 import {
   Typography,
   Paper,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
 } from "@mui/material";
 import Link from "next/link";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FolderOffIcon from "@mui/icons-material/FolderOff";
 import AddIcon from "@mui/icons-material/Add";
-import { CreateFlowDialog } from "./CreateFlowDialog";
-import { DeleteFlowDialog } from "./DeleteFlowDialog";
-import { DeleteFolderDialog } from "./DeleteFolderDialog";
+import { CreateFlowDialog } from "./Dialogs/CreateFlowDialog";
+import { DeleteFlowDialog } from "./Dialogs/DeleteFlowDialog";
+import { DeleteFolderDialog } from "./Dialogs/DeleteFolderDialog";
 import { deleteFlow } from "@/lib/serv-actions/deleteFlow";
 import { createFlow } from "@/lib/serv-actions/createFlow";
 import { useRouter } from "next/navigation";
-import { redirect } from "next/dist/server/api-utils";
+import FavoriteButton from "./FavoriteButton";
 
 type FolderProps = {
   folder: any;
@@ -32,22 +24,23 @@ type FolderProps = {
   onDeleteFolder: (folderId: string) => void;
   onConfirmOpen: (flowInstance: any) => void;
   onCreate: (title: string, folderId: string) => void;
+  onFavoriteFolder: (folder: string) => void;
 };
 
 export function Folder({
   folder,
   flowInstances,
-  onCreate,
   onDeleteFlow,
   onDeleteFolder,
+  onFavoriteFolder,
 }: FolderProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [flowToDelete, setFlowToDelete] = useState<any>(null);
   const [createFlowDialogOpen, setCreateFlowDialogOpen] = useState(false);
   const [deleteFolderDialogOpen, setDeleteFolderDialogOpen] = useState(false);
 
-  const [title, setTitle] = useState("Filler"); // Use the initialTitle prop as the initial state
-  const router = useRouter()
+  const [title, setTitle] = useState("Filler");
+  const router = useRouter();
   const handleConfirmOpen = (flowInstance: any) => {
     setFlowToDelete(flowInstance);
     setConfirmOpen(true);
@@ -59,8 +52,12 @@ export function Folder({
 
   const handleDeleteFlow = (flowId: string) => {
     onDeleteFlow(flowId);
-    deleteFlow(flowId)
+    deleteFlow(flowId);
     handleConfirmClose();
+  };
+
+  const handleFavorite = () => {
+    onFavoriteFolder(folder);
   };
 
   const handleDeleteFolder = () => {
@@ -71,20 +68,14 @@ export function Folder({
   const handleCreateNewFlow = async () => {
     setTitle(title);
     const flow = await createFlow(title, folder.folderId);
-    setTitle(""); // Reset the title state variable
-    setCreateFlowDialogOpen(false); // Close the dialog
+    setTitle("");
+    setCreateFlowDialogOpen(false);
     if (!flow) {
-      return
-      <div>
-        Loading
-      </div>
+      return <div>Loading</div>;
     }
 
-    // Redirect to the flows/[flowId] page
     router.push(`/Flow/${flow.flowId}`);
-
   };
-
 
   const middleIndex = Math.ceil(flowInstances.length / 2);
   const leftFlowInstances = flowInstances.slice(0, middleIndex);
@@ -92,21 +83,40 @@ export function Folder({
 
   return (
     <Paper elevation={3} style={{ padding: "16px" }}>
-      <Typography variant="h6">{folder.name}</Typography>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Typography variant="h6">{folder.name}</Typography>
+        <div>
+          <FavoriteButton
+
+            onFavorite={handleFavorite}
+          />
+          <IconButton
+            edge="end"
+            color="secondary"
+            onClick={() => setDeleteFolderDialogOpen(true)}
+          >
+            <FolderOffIcon />
+          </IconButton>
+          <IconButton
+            edge="end"
+            color="primary"
+            onClick={() => setCreateFlowDialogOpen(true)}
+          >
+            <AddIcon />
+          </IconButton>
+        </div>
+      </div>
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
           {leftFlowInstances.map((flowInstance) => (
             <div key={flowInstance.flowId}>
               <Link href={`/Flow/${flowInstance.flowId}`} passHref>
                 <Typography variant="h5" component="div" gutterBottom>
-                  Flow Instance: {flowInstance.title}
+                  Flow: {flowInstance.title}
                 </Typography>
               </Link>
-              <Typography variant="h6" gutterBottom>
-                Created at: {new Date(flowInstance.createdAt).toString()}
-              </Typography>
-              <Typography variant="subtitle1" gutterBottom>
-                Updated at: {new Date(flowInstance.updatedAt).toString()}
+              <Typography variant="body2" gutterBottom>
+                Updated at: {new Date(flowInstance.updatedAt).toString().slice(0, 21)}
               </Typography>
               <IconButton
                 edge="end"
@@ -123,7 +133,7 @@ export function Folder({
             <div key={flowInstance.flowId}>
               <Link href={`/Flow/${flowInstance.flowId}`} passHref>
                 <Typography variant="h5" component="div" gutterBottom>
-                  Flow Instance: {flowInstance.title}
+                  Flow: {flowInstance.title}
                 </Typography>
               </Link>
               <Typography variant="body1" gutterBottom>
@@ -139,46 +149,29 @@ export function Folder({
               >
                 <DeleteIcon />
               </IconButton>
-              <DeleteFlowDialog
+            </div>
+          ))}
+        </div>
+      </div>
+      <DeleteFlowDialog
                 open={confirmOpen}
                 onClose={handleConfirmClose}
                 onDelete={handleDeleteFlow}
                 flowToDelete={flowToDelete}
               />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <IconButton
-        edge="end"
-        color="secondary"
-        onClick={() => setDeleteFolderDialogOpen(true)}
-      >
-        <FolderOffIcon />
-      </IconButton>
-      {/* Add the DeleteFolderDialog component and pass the required props */}
       <DeleteFolderDialog
         open={deleteFolderDialogOpen}
         onClose={() => setDeleteFolderDialogOpen(false)}
         onDelete={handleDeleteFolder}
         folderToDelete={folder}
       />
-
-      <IconButton
-        edge="end"
-        color="primary"
-        onClick={() => setCreateFlowDialogOpen(true)}
-      >
-        <AddIcon />
-      </IconButton>
       <CreateFlowDialog
         open={createFlowDialogOpen}
         onClose={() => setCreateFlowDialogOpen(false)}
-        onCreate={handleCreateNewFlow} // Pass the handleCreateNewFlow function
-        title={title} // Pass the title state variable as a prop
-        onTitleChange={setTitle} // Add a function to update the title state variable
-/>
+        onCreate={handleCreateNewFlow}
+        title={title}
+        onTitleChange={setTitle}
+      />
     </Paper>
   );
 }

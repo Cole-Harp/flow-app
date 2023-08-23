@@ -6,6 +6,8 @@ import { getFlow } from "../../../../lib/serv-actions/getFlow";
 
 
 
+
+
 export default function Flow(context: { params: { flowId: string; }; }) {
   const { flowId } = context.params as { flowId: string };
   const [flow, setFlow] = useState(null);
@@ -25,9 +27,8 @@ export default function Flow(context: { params: { flowId: string; }; }) {
 
   // Wrap the ReactFlowWrapper component with AppContext.Consumer
   return (
-    <ReactFlowWrapper {...flow} />
 
-
+      <ReactFlowWrapper {...flow} />
 
   );
 }

@@ -1,5 +1,5 @@
 import { Handle, Position } from "reactflow";
-import Editor from "@/ui/editor";
+import Editor from "@/TipTapEditor/editor";
 import React, { useState } from "react";
 
 interface BlockNodeProps {
@@ -12,11 +12,11 @@ interface BlockNodeProps {
 
 const nodeStyle = {
   border: "1px solid black",
-  borderRadius: "5px",
+  borderRadius: "20px",
   display: "inline-flex",
   flexDirection: "column" as const,
   alignItems: "center",
-  padding: "10px",
+  padding: "20px",
 };
 
 
@@ -28,9 +28,9 @@ const Editor_: React.FC<BlockNodeProps> = ({ id, data }) => {
   };
 
   return (
-    <div style={{ ...nodeStyle, minWidth: "400px", position: "relative"}}>
+    <div className = "text-node-editable" style={{ ...nodeStyle, minWidth: "400px", position: "relative"}} >
       <Handle type="target" position={Position.Top} />
-      <div className="text-node-editable nodrag" style={{ minWidth: "400px" }}>
+      <div className="nodrag" style={{ minWidth: "400px" }} >
         <Editor id={id} onChange={setContent} onSave={handleSave} defaultContent={localContent} />
       </div>
       <Handle type="source" position={Position.Bottom} />

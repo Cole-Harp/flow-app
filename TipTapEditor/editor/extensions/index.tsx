@@ -12,7 +12,7 @@ import { Markdown } from "tiptap-markdown";
 import Highlight from "@tiptap/extension-highlight";
 import SlashCommand from "./slash-command";
 import { InputRule } from "@tiptap/core";
-import UploadImagesPlugin from "@/ui/editor/plugins/upload-images";
+import UploadImagesPlugin from "@/TipTapEditor/editor/plugins/upload-images";
 import UpdatedImage from "../updated-image";
 import { Document } from '@tiptap/extension-document';
 
@@ -88,7 +88,7 @@ export const TiptapExtensions = [
     },
   }).configure({
     HTMLAttributes: {
-      class: "ml-5 mr-2 mt-4 mb-6 border-t border-stone-300",
+      class: "ml-5 mr-2 mt-4 mb-6 ",
     },
   }),
   TiptapLink.configure({
