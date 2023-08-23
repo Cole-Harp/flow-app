@@ -1,5 +1,3 @@
-"use client";
-
 import "@/app/styles/prosemirror.css";
 import React from "react"
 
@@ -22,10 +20,8 @@ export const metadata: Metadata = {
     title,
     description,
     card: "summary_large_image",
-    creator: "@steventey",
+    creator: "@Cole Harp",
   },
-  metadataBase: new URL("https://novel.sh"),
-  themeColor: "#ffffff",
 };
 
 
