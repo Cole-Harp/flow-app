@@ -139,7 +139,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
       setNodes((prevNodes) =>
         prevNodes.map((node) => {
           if (node.id === nodeId) {
-            return { ...node, data: { ...node.data, text: newText } };
+            return { ...node, data: { ...node.data, content: newText } };
           }
           return node;
         }),
@@ -230,8 +230,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         y: 0.5 * window.innerHeight,
       },
       data: {
-        label: "New Text Node",
-        text: "New Text Node",
+        content: "New Text Node",
       },
     };
     setNodes((ns: any[]) => ns.concat(newNode));

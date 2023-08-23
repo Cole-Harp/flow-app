@@ -4,8 +4,8 @@ import { Handle, Position } from "reactflow";
 interface TextNodeProps {
   id: string;
   data: {
-    text: string;
-    updateNodeText: (id: string, text: string) => void;
+    content: string;
+    updateNodeText: (id: string, content: string) => void;
   };
 }
 
@@ -19,8 +19,8 @@ const nodeStyle = {
 };
 
 const SimpleTextNode: React.FC<TextNodeProps> = ({ id, data }) => {
-  const { text, updateNodeText } = data;
-  const [localText, setLocalText] = useState<string>(text);
+  const { content, updateNodeText } = data;
+  const [localText, setLocalText] = useState<string>(content);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

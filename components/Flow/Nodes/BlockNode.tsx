@@ -24,6 +24,7 @@ const Editor_: React.FC<BlockNodeProps> = ({ id, data }) => {
   const { content, updateNodeText} = data
   const [localContent, setContent] = useState<string>(content);
   const handleSave = (content: string) => {
+    console.log("BLOCK NODES", content)
     updateNodeText(id, content);
   };
 
