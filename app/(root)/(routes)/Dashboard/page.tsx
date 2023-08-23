@@ -2,7 +2,7 @@ import { SearchInput } from "@/components/flow_dashboard/Dashboard_Ui/search-inp
 
 import prisma_db from "@/lib/prisma_db";
 import { Folders } from "@/components/flow_dashboard/Dashboard_Ui/folders";
-import { findOrCreateUser } from "@/lib/serv-actions/findOrCreateUser";
+import { FindOrCreateUser } from "@/lib/serv-actions/findOrCreateUser";
 
 import Flow_Dashboard from "@/components/flow_dashboard/dashboard";
 
@@ -19,7 +19,7 @@ interface DashboardPageProps {
 const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
   searchParams
   
-  const id= (await findOrCreateUser()).clerkUserId;
+  const id= (await FindOrCreateUser()).clerkUserId;
     console.log(id, "HEREHERHE")
 
   
