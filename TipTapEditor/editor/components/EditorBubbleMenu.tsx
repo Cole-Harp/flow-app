@@ -29,31 +29,31 @@ export const EditorBubbleMenu: FC<EditorBubbleMenuProps> = (props) => {
     {
       name: "bold",
       isActive: () => props.editor.isActive("bold"),
-      command: () => props.editor.chain().focus().toggleBold().run(),
+      command: () => props.editor.chain().focus().setMark("bold").run(),
       icon: BoldIcon,
     },
     {
       name: "italic",
       isActive: () => props.editor.isActive("italic"),
-      command: () => props.editor.chain().focus().toggleItalic().run(),
+      command: () => props.editor.chain().focus().setMark("italic").run(),
       icon: ItalicIcon,
     },
     {
       name: "underline",
       isActive: () => props.editor.isActive("underline"),
-      command: () => props.editor.chain().focus().toggleUnderline().run(),
+      command: () => props.editor.chain().focus().setMark("underline").run(),
       icon: UnderlineIcon,
     },
     {
       name: "strike",
       isActive: () => props.editor.isActive("strike"),
-      command: () => props.editor.chain().focus().toggleStrike().run(),
+      command: () => props.editor.chain().focus().setMark("strike").run(),
       icon: StrikethroughIcon,
     },
     {
       name: "code",
       isActive: () => props.editor.isActive("code"),
-      command: () => props.editor.chain().focus().toggleCode().run(),
+      command: () => props.editor.chain().focus().setMark("code").run(),
       icon: CodeIcon,
     },
   ];
