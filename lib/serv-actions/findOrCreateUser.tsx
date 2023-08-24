@@ -1,11 +1,8 @@
-"use server";
-
-import { auth, useUser } from "@clerk/nextjs";
-
+import { auth, clerkClient } from "@clerk/nextjs";
 import prisma_db from "@/lib/prisma_db";
 
 export async function FindOrCreateUser() {
-  console.log("MADE IT?")
+  console.log("MADE IT?");
   const userId = auth().userId;
   const existingUser = await prisma_db.user.findUnique({
     where: {
@@ -15,12 +12,11 @@ export async function FindOrCreateUser() {
 
   if (existingUser) {
     return existingUser;
-  }
-  else {  const { user } = useUser();
+  } else {
+    const user = await clerkClient.users.getUser(userId);
     const userEmail = user.emailAddresses[0].emailAddress;
     const userName = user.username;
     const newUser = await prisma_db.user.create({
-      
       data: {
         clerkUserId: userId,
         email: userEmail,
@@ -29,6 +25,4 @@ export async function FindOrCreateUser() {
     });
     return newUser;
   }
-
-  
 }
