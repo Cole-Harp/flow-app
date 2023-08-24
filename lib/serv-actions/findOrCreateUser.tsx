@@ -16,17 +16,19 @@ export async function FindOrCreateUser() {
   if (existingUser) {
     return existingUser;
   }
-  const { user } = useUser();
-  const userEmail = user.emailAddresses[0].emailAddress;
-  const userName = user.username;
-  const newUser = await prisma_db.user.create({
-    
-    data: {
-      clerkUserId: userId,
-      email: userEmail,
-      name: userName,
-    },
-  });
+  else {  const { user } = useUser();
+    const userEmail = user.emailAddresses[0].emailAddress;
+    const userName = user.username;
+    const newUser = await prisma_db.user.create({
+      
+      data: {
+        clerkUserId: userId,
+        email: userEmail,
+        name: userName,
+      },
+    });
+    return newUser;
+  }
 
-  return newUser;
+  
 }
