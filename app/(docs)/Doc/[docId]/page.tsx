@@ -15,12 +15,6 @@ const EditorComponent = ( params) => {
   const handleSave = (content: string) => {
     console.log("BLOCK NODES");
 
-    const fetchData = async () => {
-      const fetchedDoc = await getDoc(docId);
-      setContent(fetchedDoc.content);
-    };
-
-    fetchData();
   };
 
   useEffect(() => {
