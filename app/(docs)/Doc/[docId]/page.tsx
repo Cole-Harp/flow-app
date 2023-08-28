@@ -6,17 +6,9 @@ import Editor from "@/TipTapEditor/editor";
 import React, { useEffect, useState } from "react";
 import { getDoc } from "@/lib/serv-actions/getDoc";
 
-interface BlockNodeProps {
-  id: string;
-  data: {
-    content: string;
-  };
-  params: {
-    docId: string;
-  };
-}
 
-const EditorComponent: React.FC<BlockNodeProps> = ({ id, params }) => {
+
+const EditorComponent = ( params) => {
   const { docId } = params;
   const [localContent, setContent] = useState<string>("");
 

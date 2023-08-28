@@ -148,7 +148,7 @@ const onNodeClick: NodeMouseHandler = useCallback(
           if (n.id === node.id) {
             return {
               ...n,
-              data: { ...n.data, expanded: !n.data.expanded },
+              data: { ...n.data },
             };
           }
 
