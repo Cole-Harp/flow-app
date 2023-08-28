@@ -1,4 +1,3 @@
-"use client";
 import "@/app/styles/prosemirror.css";
 import { Handle, Position } from "reactflow";
 import Editor from "@/TipTapEditor/editor";
@@ -15,7 +14,7 @@ interface BlockNodeProps {
   };
 }
 
-const Editor_: React.FC<BlockNodeProps> = ({ id, params }) => {
+const EditorComponent: React.FC<BlockNodeProps> = ({ id, params }) => {
   const { docId } = params;
   const [localContent, setContent] = useState<string>("");
 
@@ -39,7 +38,6 @@ const Editor_: React.FC<BlockNodeProps> = ({ id, params }) => {
     fetchData();
   }, [docId]);
 
-
   return (
     <div className="flex min-h-screen flex-col items-center sm:px-5 sm:pt-[calc(6vh)]">
       <Editor id={docId} onChange={setContent} onSave={handleSave} defaultContent={localContent} />
@@ -47,4 +45,4 @@ const Editor_: React.FC<BlockNodeProps> = ({ id, params }) => {
   );
 };
 
-export default Editor_;
+export default EditorComponent;
