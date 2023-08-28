@@ -24,7 +24,21 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
 
   
 
-  const folder_contents = await prisma_db.flowInstance.findMany({
+  const folder_flows = await prisma_db.flowInstance.findMany({
+    where: {
+        
+      folderId: searchParams.folderId,
+      title: {
+        search: searchParams.title,
+      },
+      userId: id
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const folder_docs = await prisma_db.doc.findMany({
     where: {
         
       folderId: searchParams.folderId,
@@ -44,14 +58,25 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
     },
   });
 
-  const serializedFlows = Array.isArray(folder_contents) ? folder_contents.map((folder_contents) => ({
-    ...folder_contents,
+  const docs = await prisma_db.doc.findMany({
+    where: {
+        userId: id
+    },
+  });
+
+  const serializedFlows = Array.isArray(folder_flows) ? folder_flows.map((folder_flows) => ({
+    ...folder_flows,
   })) : [];
 
 
   const serializedFolders = Array.isArray(folders) ? folders.map((folder) => ({
     ...folder,
   })) : [];
+
+  const serializedDocs = Array.isArray(docs) ? folder_docs.map((doc) => ({
+    ...doc,
+  })) : [];
+
 
   console.log(folders, "FOLDERS")
 
@@ -60,7 +85,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
       <SearchInput />
       <Folders data={folders}/>
       {/* <Flows data={folder_contents} /> */}
-      <Flow_Dashboard initial_folders = {serializedFolders} initial_flows = {serializedFlows} />
+      <Flow_Dashboard initial_folders = {serializedFolders} initial_flows = {serializedFlows} initial_docs={serializedDocs} />
     </div>
   );
 };

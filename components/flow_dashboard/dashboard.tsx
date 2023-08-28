@@ -32,10 +32,18 @@ interface FlowDashboardProps {
     userId,
     folderId
   }>;
+  initial_docs: Array<{
+    docId,
+    title,
+    folderId,
+    userId,
+    createdAt,
+    updatedAt,
+
+  }>;
 }
 
-
-const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial_flows }) => {
+const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial_flows, initial_docs }) => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [folderToDelete, setFolderToDelete] = useState<Folder | null>(null);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
@@ -44,6 +52,7 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
   const [favoriteFolders, setFavoriteFolders] = useState([]);
   const [folders, setFolders] = useState(initial_folders || []);
   const [flowInstances, setFlowInstances] = useState(initial_flows || []);
+  const [docs, setDocs] = useState(initial_docs || []);
   
 
   const handleConfirmOpen = (folder?: Folder) => {
@@ -109,7 +118,7 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
           onCreate={handleCreateNewFolder}
         />
         <div style={{ marginTop: '24px' }}>
-        {favoriteFolders.length > 0 && (
+        {/* {favoriteFolders.length > 0 && (
           <div style={{ marginTop: '24px' }}>
             <Typography variant="h4" component="h1" marginTop="10px">
               Favorite Folders
@@ -120,9 +129,14 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
                   (flowInstance) => flowInstance.folderId === folder.folderId,
                 );
 
+                const folderDocs = flowInstances.filter(
+                  (doc) => doc.folderId === folder.folderId,
+                );
+
                 return (
                   <Grid item xs={12} sm={6} md={4} key={folder.folderId}>
                     <FolderComponent
+                      docs={folderDocs}
                       folder={folder}
                       flowInstances={folderFlowInstances}
                       onDeleteFlow={handleDeleteFlow}
@@ -130,14 +144,13 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
                       onCreate={createFlow}
                       title={''}
                       onDeleteFolder={handleDeleteFolder}
-                      onFavoriteFolder={handleFavoriteFolder}
-                    />
+                      onFavoriteFolder={handleFavoriteFolder}                    />
                   </Grid>
                 );
               })}
             </Grid>
           </div>
-        )}
+        )} */}
       </div>
           <Typography variant="h4" component="h1" marginTop="10px">
             Folders
@@ -146,6 +159,10 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
             {folders.map((folder) => {
               const folderFlowInstances = flowInstances.filter(
                 (flowInstance) => flowInstance.folderId === folder.folderId,
+              );
+
+              const folderDocs = docs.filter(
+                (doc) => doc.folderId === folder.folderId,
               );
 
               return (
@@ -158,8 +175,7 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
                     onCreate={createFlow}
                     title={""}
                     onDeleteFolder={handleDeleteFolder}
-                    onFavoriteFolder={handleFavoriteFolder}
-                  />
+                    onFavoriteFolder={handleFavoriteFolder} docs={folderDocs}                  />
                 </Grid>
               );
             })}

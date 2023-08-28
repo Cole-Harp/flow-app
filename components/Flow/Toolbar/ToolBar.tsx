@@ -1,22 +1,34 @@
-import React, { DragEvent } from 'react';
+import { Menu } from 'lucide-react';
+import React, { useState } from 'react';
 
-const onDragStart = (event: DragEvent, nodeType: string) => {
-  event.dataTransfer.setData('application/reactflow', nodeType);
-  event.dataTransfer.effectAllowed = 'move';
-};
+const Toolbar = () => {
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
-const Sidebar = () => {
+  const onDragStart = (event, nodeType) => {
+    event.dataTransfer.setData('application/reactflow', nodeType);
+    event.dataTransfer.effectAllowed = 'move';
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownVisible(!isDropdownVisible);
+  };
+
   return (
-    <aside>
-      <div className="react-flow__node-node" onDragStart={(event: DragEvent) => onDragStart(event, 'node')} draggable>
-        <div className="icon">△</div>
-        <div className="label">Node</div>
-      </div>
-      <div className="react-flow__node-group" onDragStart={(event: DragEvent) => onDragStart(event, 'group')} draggable>
-        <div className="label">Group</div>
-      </div>
-    </aside>
+    <div>
+      <button onClick={toggleDropdown}><Menu /></button>
+      {isDropdownVisible && (
+        <aside style={{ position: 'relative', zIndex: 100000, background: 'black', padding: '1rem', borderRadius: '4px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)' }}>
+
+          <div className="dndnode input" onDragStart={(event) => onDragStart(event, 'blockNode')} draggable>
+            Block Node
+          </div>
+          <div className="dndnode" onDragStart={(event) => onDragStart(event, 'customNode')} draggable>
+            Expand Node
+          </div>
+        </aside>
+      )}
+    </div>
   );
 };
 
-export default Sidebar;
+export default Toolbar;

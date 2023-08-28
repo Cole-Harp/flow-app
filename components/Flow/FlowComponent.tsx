@@ -25,11 +25,13 @@ import ReactFlow, {
   OnNodesDelete,
   OnEdgesDelete,
   updateEdge,
+  NodeMouseHandler,
 } from "reactflow";
 import 'reactflow/dist/style.css';
 import "@/app/styles/prosemirror.css";
 import SimpleTextNode from "./Nodes/SimpleTextNode";
 import BlockNode from "./Nodes/BlockNode";
+import CustomNode from "./Nodes/ExpansionNode";
 import { getHelperLines } from "../../components/Flow/FlowUtils/utils";
 import HelperLines from "../../components/Flow/FlowUtils/HelperLines";
 import useUndoRedo from "../../components/Flow/FlowUtils/useUndoRedo";
@@ -40,10 +42,14 @@ import { IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import UpgradeIcon from "@mui/icons-material/Upgrade";
 import { updateFlow } from "@/lib/serv-actions/updateFlow";
+import ToolBar from "./Toolbar/ToolBar";
+import useExpandCollapse from "./FlowUtils/useExpandCollapse";
+import useAnimatedNodes from "./FlowUtils/useAnimatedNode";
 
 const nodeTypes = {
   simpleText: SimpleTextNode,
   blockNode: BlockNode,
+  customNode: CustomNode,
 };
 
 const defaultEdgeOptions = {
@@ -64,6 +70,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   const [undraggableNodeIds, setUndraggableNodeIds] = useState(new Set<string>(),);
   const { setViewport } = useReactFlow();
   const { undo, redo, canUndo, canRedo, takeSnapshot } = useUndoRedo();
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const edgeUpdateSuccessful = useRef(true);
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -71,6 +78,9 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   const reactFlowWrapper = useRef(null);
   const connectingNodeId = useRef(null);
   const { project } = useReactFlow();
+  const { nodes: visibleNodes, edges: visibleEdges } = useExpandCollapse(nodes, edges);
+  const animationDuration = 100
+  const { nodes: animatedNodes } = useAnimatedNodes(visibleNodes, { animationDuration });
   // const [reactFlowInstance, setReactFlowInstance] = useState(null);
 
   const [helperLineHorizontal, setHelperLineHorizontal] = useState<
@@ -118,12 +128,45 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     [undraggableNodeIds],
   );
 
+// Helper function to find all descendant nodes
+const findDescendantNodes = (nodeId, edges) => {
+  const directChildren = edges
+    .filter((edge) => edge.source === nodeId)
+    .map((edge) => edge.target);
+  let descendants = [...directChildren];
+
+  directChildren.forEach((childId) => {
+    descendants = [...descendants, ...findDescendantNodes(childId, edges)];
+  });
+
+  return descendants;
+};
+const onNodeClick: NodeMouseHandler = useCallback(
+    (_, node) => {
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (n.id === node.id) {
+            return {
+              ...n,
+              data: { ...n.data, expanded: !n.data.expanded },
+            };
+          }
+
+          return n;
+        })
+      );
+    },
+    [setNodes]
+  );
+  
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
       setNodes((nodes) => customApplyNodeChanges(changes, nodes));
     },
-    [setNodes, customApplyNodeChanges],
+    
+    [customApplyNodeChanges],
   );
+  
 
   const onConnect: OnConnect = useCallback(
     (connection) => {
@@ -131,7 +174,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
       takeSnapshot();
       setEdges((edges) => addEdge(connection, edges));
     },
-    [setEdges, takeSnapshot],
+    [ takeSnapshot],
   );
 
   const updateNodeText = useCallback(
@@ -216,25 +259,35 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     }
   };
 
-  const onConnectStart = useCallback((_: any, nodeId: any) => {
+  const onConnectStart = useCallback((_, { nodeId }) => {
     connectingNodeId.current = nodeId;
-    console.log(nodeId);
   }, []);
 
-  const addBlockNode = useCallback(() => {
+
+  const addBlockNode = useCallback((x: any, y: any) => {
     const newNode = {
       id: Math.random().toString(36),
       type: "blockNode",
-      position: {
-        x: 0.5 * window.innerWidth,
-        y: 0.5 * window.innerHeight,
-      },
+      position: project({
+        x,
+        y,
+      }),
       data: {
         content: "New Text Node",
       },
     };
     setNodes((ns: any[]) => ns.concat(newNode));
-  }, [setNodes]);
+    const edgeId = Math.random().toString(36);
+    setEdges((eds: any[]) =>
+      eds.concat({
+        id: edgeId,
+        source: connectingNodeId.current,
+        target: newNode.id,
+      }),
+    );
+  },
+  [setNodes, setEdges],
+);
 
   const addSimpleTextNode = useCallback(
     (x: any, y: any) => {
@@ -277,8 +330,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         const x = event.clientX - left;
         const y = event.clientY - top;
         console.log("HERE", x, y);
-        setDropdownPosition({ x, y });
-        toggleDropdown();
+        addBlockNode( x, y );
       }
     },
     [reactFlowWrapper],
@@ -316,6 +368,38 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     await updateFlow(flow.flowId, flow.title, JSON.stringify(nodes), JSON.stringify(edges))
   };
 
+  const onDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(
+    (event) => {
+      event.preventDefault();
+      id: Math.random().toString(36)
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      const type = event.dataTransfer.getData('application/reactflow');
+
+      // check if the dropped element is valid
+      if (typeof type === 'undefined' || !type) {
+        return;
+      }
+
+      const position = reactFlowInstance.project({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
+      const newNode = {
+        id: Math.random().toString(36),
+        type,
+        position,
+        data: { label: `${type} node` },
+      };
+
+      setNodes((ns: any[]) => ns.concat(newNode));
+    },
+    [reactFlowInstance]
+  );
 
 
   return (
@@ -323,14 +407,15 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
       className="wrapper"
       ref={reactFlowWrapper}
       style={{ width: "100%", height: "100vh" }}
+      
     >
       <ReactFlow
-        nodes={nodes.map((node) =>
+        nodes={visibleNodes.map((node) =>
           node.type === "simpleText" || "blockNode"
             ? { ...node, data: { ...node.data, updateNodeText } }
             : node,
         )}
-        edges={edges}
+        edges={visibleEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
@@ -347,15 +432,17 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         defaultEdgeOptions={defaultEdgeOptions}
         connectionLineType={ConnectionLineType.SmoothStep}
         onNodeDoubleClick={onElementDoubleClick}
+        onInit={setReactFlowInstance}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        onNodeClick={onNodeClick}
 
         fitView
         fitViewOptions={fitViewOptions}
       >
-        <Panel position="top-right">
-          <IconButton edge="end" color="secondary" onClick={addBlockNode}>
-            <AddIcon />
-          </IconButton>
-          <IconButton
+        <Panel position="top-left">
+          <ToolBar/>
+          {/* <IconButton
             edge="end"
             color="secondary"
             onClick={() =>
@@ -363,19 +450,19 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
             }
           >
             <AddIcon />
-          </IconButton>
+          </IconButton> */}
           {/* <IconButton edge="end" color="secondary" onClick={addTextNode}>
             <AddIcon />
           </IconButton> */}
           <IconButton edge="end" color="default" onClick={handleUpdateFlow}>
             <UpgradeIcon />
           </IconButton>
-          <button disabled={canUndo} onClick={undo}>
+          {/* <button disabled={canUndo} onClick={undo}>
             undo
           </button>
           <button disabled={canRedo} onClick={redo}>
             redo
-          </button>
+          </button> */}
         </Panel>
         <HelperLines
           horizontal={helperLineHorizontal}
@@ -390,6 +477,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
           />
         )}
       </ReactFlow>
+      
     </div>
   );
 }

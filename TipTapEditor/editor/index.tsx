@@ -13,6 +13,7 @@ import DEFAULT_EDITOR_CONTENT from "./default-content";
 import { EditorBubbleMenu } from "./components/EditorBubbleMenu";
 import { getPrevText } from "./getPrevText";
 import { ImageResizer } from "./image-resizer";
+import { updateDoc } from "@/lib/serv-actions/updateDoc";
 
 type TNote = {
   id: string;
@@ -36,11 +37,12 @@ export default function Editor({ id, defaultContent, onSave, onChange }: TNote) 
     setContent(json)
     onChange(json);
     onSave(json);
+    await updateDoc(id, json)
     // Simulate a delay in saving.
     setTimeout(() => {
       setSaveStatus("Saved");
     }, 500);
-  }, 750);
+  },1000);
 
   const editor = useEditor({
     extensions: TiptapExtensions,
@@ -48,6 +50,7 @@ export default function Editor({ id, defaultContent, onSave, onChange }: TNote) 
     onUpdate: (e) => {
       setSaveStatus("Unsaved");
       const selection = e.editor.state.selection;
+      
       // const json_ = JSON.stringify(e.editor.getJSON());
       // updateNodeText(id, json_);
       const lastTwo = getPrevText(e.editor, {

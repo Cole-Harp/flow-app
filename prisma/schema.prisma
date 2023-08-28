@@ -17,6 +17,7 @@ model User {
   name          String
   folders       Folder[] // One-to-Many relationship with Folder
   flowInstances FlowInstance[] // One-to-Many relationship with FlowInstance
+  docs          Doc[]
 }
 
 model Folder {
@@ -26,6 +27,7 @@ model Folder {
   user          User           @relation(fields: [userId], references: [clerkUserId])
   userId        String
   flowInstances FlowInstance[] // One-to-Many relationship with FlowInstance
+  docs          Doc[]
 
   @@index([userId])
 }
@@ -44,4 +46,20 @@ model FlowInstance {
 
   @@index([userId])
   @@index([flowId])
+}
+
+model Doc {
+  docId           String   @id @default(uuid())
+  title     String @db.Text
+  folderId  String?
+  folder    Folder?  @relation(fields: [docId], references: [folderId], onDelete: Cascade)
+  userId    String // Add a foreign key to connect with the User model
+  user      User     @relation(fields: [userId], references: [clerkUserId]) // Establish the relationship with the User model
+
+  content      String
+  createdAt DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([docId])
 }
