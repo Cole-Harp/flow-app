@@ -7,24 +7,26 @@ import React, { useEffect, useState } from "react";
 import { getDoc } from "@/lib/serv-actions/getDoc";
 
 
-
 const EditorComponent = (context: { params: { docId: string; }; }) => {
   const { docId } = context.params;
-  const [localContent, setContent] = useState<string>("");
+  const [localContent, setContent] = useState<string | null>(null);
 
   const handleSave = (content: string) => {
     console.log("BLOCK NODES");
-
   };
 
   useEffect(() => {
     const fetchData = async () => {
       const fetchedDoc = await getDoc(docId);
-      setContent(fetchedDoc.content)
+      setContent(fetchedDoc.content);
     };
 
     fetchData();
   }, [docId]);
+
+  if (localContent === null) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center sm:px-5 sm:pt-[calc(6vh)]">
