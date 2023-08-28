@@ -1,3 +1,5 @@
+"use client";
+
 import "@/app/styles/prosemirror.css";
 import { Handle, Position } from "reactflow";
 import Editor from "@/TipTapEditor/editor";
