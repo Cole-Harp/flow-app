@@ -8,8 +8,8 @@ import { getDoc } from "@/lib/serv-actions/getDoc";
 
 
 
-const EditorComponent = ( params) => {
-  const { docId } = params;
+const EditorComponent = (context: { params: { docId: string; }; }) => {
+  const { docId } = context.params;
   const [localContent, setContent] = useState<string>("");
 
   const handleSave = (content: string) => {
