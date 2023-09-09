@@ -18,24 +18,27 @@ export const AppContext = createContext<{
 
 const inter = Inter({ subsets: ['latin'] })
 
-
+import "./styles/globals.css"
 export default function Providers({ children }: { children: ReactNode }) {
   const [font, setFont] = useLocalStorage<string>("novel__font", "Mono" );
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+
       <AppContext.Provider
         value={{
           font,
           setFont,
         }}
       >
-        <body className={cn(displayFontMapper[font], defaultFontMapper[font], "bg-secondary", inter.className)}>
+        
+        <body className={cn(displayFontMapper[font], defaultFontMapper[font], "bg-white", inter.className)}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem enableColorScheme>
           {children}
+          </ThemeProvider>
         </body>
         <Analytics />
       </AppContext.Provider>
-    </ThemeProvider>
+
 
   );
 }

@@ -12,7 +12,8 @@ export const createDoc = cache(async (title: string, folderId?) => {
         title,
         folderId: folderId,
         userId: _id,
-        content: ""
+        content: "",
+        textEditorContent: "                       "
         }
     });
     return newDoc

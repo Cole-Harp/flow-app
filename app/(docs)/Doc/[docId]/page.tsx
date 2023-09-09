@@ -5,20 +5,23 @@ import { Handle, Position } from "reactflow";
 import Editor from "@/TipTapEditor/editor";
 import React, { useEffect, useState } from "react";
 import { getDoc } from "@/lib/serv-actions/getDoc";
+import { updateDoc } from "@/lib/serv-actions/updateDoc";
+import { JsonValue } from "@prisma/client/runtime/library";
 
 
 const EditorComponent = (context: { params: { docId: string; }; }) => {
   const { docId } = context.params;
-  const [localContent, setContent] = useState<string | null>(null);
+  const [localContent, setContent] = useState<JsonValue | null>(null);
 
   const handleSave = (content: string) => {
-    console.log("BLOCK NODES");
+    console.log("BLOCK NODES", content);
+    updateDoc(docId, content);
   };
 
   useEffect(() => {
     const fetchData = async () => {
       const fetchedDoc = await getDoc(docId);
-      setContent(fetchedDoc.content);
+      setContent(fetchedDoc.textEditorContent);
     };
 
     fetchData();

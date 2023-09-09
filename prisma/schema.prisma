@@ -57,6 +57,7 @@ model Doc {
   user      User     @relation(fields: [userId], references: [clerkUserId]) // Establish the relationship with the User model
 
   content      String
+  textEditorContent Json
   createdAt DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

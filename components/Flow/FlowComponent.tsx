@@ -1,5 +1,5 @@
-"use client";
-import React, { useState, useCallback, useRef } from "react";
+
+import React, { useState, useCallback, useRef, useEffect } from "react";
 
 import ReactFlow, {
   ReactFlowProvider,
@@ -26,30 +26,31 @@ import ReactFlow, {
   OnEdgesDelete,
   updateEdge,
   NodeMouseHandler,
+  NodeProps,
 } from "reactflow";
-import 'reactflow/dist/style.css';
 import "@/app/styles/prosemirror.css";
 import SimpleTextNode from "./Nodes/SimpleTextNode";
 import BlockNode from "./Nodes/BlockNode";
-import CustomNode from "./Nodes/ExpansionNode";
-import { getHelperLines } from "../../components/Flow/FlowUtils/utils";
-import HelperLines from "../../components/Flow/FlowUtils/HelperLines";
-import useUndoRedo from "../../components/Flow/FlowUtils/useUndoRedo";
-import DropdownMenu from "../../components/Flow/FlowUtils/DropdownMenu";
+
+import { getHelperLines } from "components/Flow/FlowUtils/utils";
+import HelperLines from "components/Flow/FlowUtils/HelperLines";
+import useUndoRedo from "components/Flow/FlowUtils/useUndoRedo";
+import DropdownMenu from "components/Flow/FlowUtils/DropdownMenu";
 
 import { FlowInstance } from "@prisma/client";
 import { IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import UpgradeIcon from "@mui/icons-material/Upgrade";
 import { updateFlow } from "@/lib/serv-actions/updateFlow";
-import ToolBar from "./Toolbar/ToolBar";
-import useExpandCollapse from "./FlowUtils/useExpandCollapse";
-import useAnimatedNodes from "./FlowUtils/useAnimatedNode";
+import ToolBar from "components/Flow/Toolbar/ToolBar";
+import useExpandCollapse from "components/Flow/FlowUtils/useExpandCollapse";
+import useAnimatedNodes from "components/Flow/FlowUtils/useAnimatedNode";
+import ExpandsionNode from "components/Flow/Nodes/ExpansionNode";
 
 const nodeTypes = {
   simpleText: SimpleTextNode,
   blockNode: BlockNode,
-  customNode: CustomNode,
+  ExpandsionNode: ExpandsionNode,
 };
 
 const defaultEdgeOptions = {
@@ -68,20 +69,17 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   const [nodes, setNodes] = useNodesState<Node>(initial_nodes || []);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initial_edges || []);
   const [undraggableNodeIds, setUndraggableNodeIds] = useState(new Set<string>(),);
-  const { setViewport } = useReactFlow();
   const { undo, redo, canUndo, canRedo, takeSnapshot } = useUndoRedo();
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const edgeUpdateSuccessful = useRef(true);
+  const [collapsedNodes, setCollapsedNodes] = useState<string[]>([]);
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
   const reactFlowWrapper = useRef(null);
   const connectingNodeId = useRef(null);
   const { project } = useReactFlow();
-  const { nodes: visibleNodes, edges: visibleEdges } = useExpandCollapse(nodes, edges);
-  const animationDuration = 100
-  const { nodes: animatedNodes } = useAnimatedNodes(visibleNodes, { animationDuration });
-  // const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  
 
   const [helperLineHorizontal, setHelperLineHorizontal] = useState<
     number | undefined
@@ -128,40 +126,86 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     [undraggableNodeIds],
   );
 
-// Helper function to find all descendant nodes
-const findDescendantNodes = (nodeId, edges) => {
-  const directChildren = edges
-    .filter((edge) => edge.source === nodeId)
-    .map((edge) => edge.target);
-  let descendants = [...directChildren];
+  // const toggleNodeExpansion = (nodeId) => {
+  //         setNodes((nds) =>
+  //         nds.map((n) => {
+  //           console.log("NODE", n);
+  //           if (nodes.some((parentNode) => parentNode.id === nodeId)) {
+  //             return { ...n, hidden: !n.hidden };
+  //           }
+  //           console.log("NODE 2", n);
+  //           return n;
+  //         })
+  //       );
+  // };
 
-  directChildren.forEach((childId) => {
-    descendants = [...descendants, ...findDescendantNodes(childId, edges)];
-  });
 
-  return descendants;
-};
-const onNodeClick: NodeMouseHandler = useCallback(
-    (_, node) => {
-      setNodes((nds) =>
-        nds.map((n) => {
-          if (n.id === node.id) {
-            return {
-              ...n,
-              data: { ...n.data },
-            };
-          }
-
-          return n;
-        })
-      );
+  const hide = (hidden) => (nodeOrEdge) => {
+    nodeOrEdge.hidden = !hidden;
+    return nodeOrEdge;
+  };
+  
+  
+  const getAllChildNodes = (node, nodes, edges) => {
+    const childNodes = getOutgoers(node, nodes, edges);
+    let allChildNodes = [...childNodes];
+  
+    childNodes.forEach((childNode) => {
+      const grandChildNodes = getAllChildNodes(childNode, nodes, edges);
+      allChildNodes = [...allChildNodes, ...grandChildNodes];
+    });
+  
+    return allChildNodes;
+  };
+  
+  const onExpandOrCollapse = useCallback(
+    (toolbar_nodes) => {
+      const node = toolbar_nodes[0];
+  
+      // Toggle the expanded state of the clicked node
+      console.log("Clicked", node);
+      console.log("PASSED");
+  
+      // Get the child nodes and connected edges of the clicked node
+      const childNodes = getAllChildNodes(node, nodes, edges);
+      const connectedEdges = getConnectedEdges(childNodes, edges);
+      console.log("Child Nodes", childNodes);
+  
+      // Toggle the isHidden attribute for child nodes and connected edges
+      if (node) {
+        setNodes((nds) =>
+          nds.map((n) => {
+            console.log("NODE", n);
+            if (childNodes.some((childNode) => childNode.id === n.id)) {
+              return { ...n, hidden: !n.hidden };
+            }
+            console.log("NODE 2", n);
+            return n;
+          })
+        );
+  
+        setEdges((eds) =>
+          eds.map((e) => {
+            console.log(e);
+            if (connectedEdges.includes(e)) {
+              return hide(!e.hidden)(e);
+            }
+            return e;
+          })
+        );
+      }
     },
-    [setNodes]
+    [setNodes, setEdges]
   );
+  
+
+  
+  
   
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
       setNodes((nodes) => customApplyNodeChanges(changes, nodes));
+
     },
     
     [customApplyNodeChanges],
@@ -275,6 +319,7 @@ const onNodeClick: NodeMouseHandler = useCallback(
       data: {
         content: "New Text Node",
       },
+      hidden: false
     };
     setNodes((ns: any[]) => ns.concat(newNode));
     const edgeId = Math.random().toString(36);
@@ -283,6 +328,7 @@ const onNodeClick: NodeMouseHandler = useCallback(
         id: edgeId,
         source: connectingNodeId.current,
         target: newNode.id,
+        hidden: false
       }),
     );
   },
@@ -301,6 +347,8 @@ const onNodeClick: NodeMouseHandler = useCallback(
         data: {
           label: "New Text Node",
           text: "New Text Node",
+
+          
         },
       };
 
@@ -325,15 +373,18 @@ const onNodeClick: NodeMouseHandler = useCallback(
     (event: any) => {
       const targetIsPane = event.target.classList.contains("react-flow__pane");
 
+
+
       if (targetIsPane) {
-        const { top, left } = reactFlowWrapper.current.getBoundingClientRect();
-        const x = event.clientX - left;
-        const y = event.clientY - top;
-        console.log("HERE", x, y);
-        addBlockNode( x, y );
+
+        const position = project({
+          x: event.clientX,
+          y: event.clientY,
+        });
+        addBlockNode(position.x-200, position.y );
       }
     },
-    [reactFlowWrapper],
+    [reactFlowWrapper, project]
   );
 
   const onElementDoubleClick = useCallback(
@@ -350,7 +401,7 @@ const onNodeClick: NodeMouseHandler = useCallback(
         });
       }
     },
-    [reactFlowWrapper, setViewport],
+    [reactFlowWrapper],
   );
 
   const onNodeDragStart: NodeDragHandler = useCallback(() => {
@@ -364,8 +415,14 @@ const onNodeClick: NodeMouseHandler = useCallback(
     takeSnapshot();
   }, [takeSnapshot]);
 
+
   const handleUpdateFlow = async () => {
-    await updateFlow(flow.flowId, flow.title, JSON.stringify(nodes), JSON.stringify(edges))
+    nodes.map((node) =>
+      node.type === "simpleText" || "blockNode"
+        ? { ...node, data: { ...node.data, updateNodeText } }
+        : node,
+    )
+    await updateFlow(flow.flowId, JSON.stringify(nodes), JSON.stringify(edges))
   };
 
   const onDragOver = useCallback((event) => {
@@ -410,12 +467,15 @@ const onNodeClick: NodeMouseHandler = useCallback(
       
     >
       <ReactFlow
-        nodes={visibleNodes.map((node) =>
-          node.type === "simpleText" || "blockNode"
-            ? { ...node, data: { ...node.data, updateNodeText } }
-            : node,
-        )}
-        edges={visibleEdges}
+        nodes={nodes
+          .filter((node) => !node.hidden) // Exclude hidden nodes
+          .map((node) =>
+            node.type === "simpleText" || node.type === "blockNode"
+              ? { ...node, data: { ...node.data, updateNodeText } }
+              : node
+          )}
+      
+        edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
@@ -435,25 +495,14 @@ const onNodeClick: NodeMouseHandler = useCallback(
         onInit={setReactFlowInstance}
         onDrop={onDrop}
         onDragOver={onDragOver}
-        onNodeClick={onNodeClick}
+
 
         fitView
         fitViewOptions={fitViewOptions}
       >
         <Panel position="top-left">
-          <ToolBar/>
-          {/* <IconButton
-            edge="end"
-            color="secondary"
-            onClick={() =>
-              addSimpleTextNode(dropdownPosition.x, dropdownPosition.y)
-            }
-          >
-            <AddIcon />
-          </IconButton> */}
-          {/* <IconButton edge="end" color="secondary" onClick={addTextNode}>
-            <AddIcon />
-          </IconButton> */}
+        <ToolBar nodes={nodes} edges={edges} />
+          
           <IconButton edge="end" color="default" onClick={handleUpdateFlow}>
             <UpgradeIcon />
           </IconButton>
@@ -486,7 +535,10 @@ function ReactFlowWrapper(props: any) {
   console.log("WRAPPER", props)
   return (
     <ReactFlowProvider>
-      <FlowInstancePage  flow = {...props} />
+
+              <FlowInstancePage  {...props} flow = {...props} />
+
+
     </ReactFlowProvider>
   );
 }

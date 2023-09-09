@@ -1,12 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   important: true,
-  darkMode: ["class"],
+  darkMode: ["className", "fill", "class", "stroke"],
   content: [
     './components/**/**/**/**/*.{ts,tsx}',
     './app/**/**/**/*.{ts,tsx}',
     "./TipTapEditor/**/**/*.{js,ts,jsx,tsx}",
-    "./app/(flow)/Flow/[flowId]/page.tsx"
 	],
   theme: {
     container: {
@@ -30,7 +29,6 @@ module.exports = {
       colors: {
         white: "var(--novel-white)",
         stone: {
-          50: "var(--novel-stone-50)",
           100: "var(--novel-stone-100)",
           200: "var(--novel-stone-200)",
           300: "var(--novel-stone-300)",
@@ -40,6 +38,7 @@ module.exports = {
           700: "var(--novel-stone-700)",
           800: "var(--novel-stone-800)",
           900: "var(--novel-stone-900)",
+          50: "var(--novel-stone-50)",
         },
         border: "hsl(var(--border))", 
         input: "hsl(var(--input))",

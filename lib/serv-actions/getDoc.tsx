@@ -7,7 +7,7 @@ export async function getDoc(docId: string) {
   const doc = await prisma_db.doc.findUnique({
     where: { docId },
   });
-  console.log("getFlow:")
+  console.log("getDoc:", doc.textEditorContent)
 
   return doc
   }

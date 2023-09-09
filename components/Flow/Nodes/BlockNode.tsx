@@ -30,11 +30,13 @@ const Editor_: React.FC<BlockNodeProps> = ({ id, data }) => {
 
   return (
     <div className = "text-node-editable" style={{ ...nodeStyle, minWidth: "400px", position: "relative"}} >
-      <Handle type="target" position={Position.Top} />
-      <div className="nodrag" style={{ minWidth: "400px" }} >
+      <Handle type="target"  id="a" isConnectable={true} position={Position.Top} />
+      <Handle type="target" id="b" isConnectable={true} position={Position.Left} />
+      <div className="nodrag max-w-5xl" style={{ minWidth: "400px" }} >
         <Editor id={id} onChange={setContent} onSave={handleSave} defaultContent={localContent} />
       </div>
-      <Handle type="source" position={Position.Bottom} />
+      <Handle type="source" id="a" isConnectable={true} position={Position.Bottom} />
+      <Handle type="source" id="b" isConnectable={true} position={Position.Right} />
     </div>
   );
 };

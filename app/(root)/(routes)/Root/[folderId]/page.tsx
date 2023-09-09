@@ -1,3 +1,5 @@
+
+
 import { SearchInput } from "@/components/flow_dashboard/Dashboard_Ui/search-input";
 
 import prisma_db from "@/lib/prisma_db";
@@ -5,32 +7,35 @@ import { Folders } from "@/components/flow_dashboard/Dashboard_Ui/folders";
 import { FindOrCreateUser } from "@/lib/serv-actions/findOrCreateUser";
 
 import Flow_Dashboard from "@/components/flow_dashboard/dashboard";
+import { useEffect, useState } from "react";
+import RootDashboard from "@/components/RootDashboard.tsx/dashboard";
+import { getFolder } from "@/lib/serv-actions/getFolder";
+import { stringify } from "querystring";
 
 
 
 
-interface DashboardPageProps {
-  searchParams: {
-    folderId: string;
-    title: string;
-  };
-}
 
-const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
-  searchParams
+  
+  export default  async function Flow(context: { params: { folderId: string; }; }) {
+    const { folderId } = context.params as { folderId: string };
+    console.log(folderId)
+
   
   const id= (await FindOrCreateUser()).clerkUserId;
-    console.log(id, "HEREHERHE")
+    console.log(folderId, "HEREHERHE")
 
+
+    const folder = await getFolder(folderId);
+    if (!folder) {
+      return <div>Loading...</div>;
+    }
   
 
   const folder_flows = await prisma_db.flowInstance.findMany({
     where: {
         
-      folderId: searchParams.folderId,
-      title: {
-        search: searchParams.title,
-      },
+      folderId: folderId,
       userId: id
     },
     orderBy: {
@@ -41,20 +46,11 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
   const folder_docs = await prisma_db.doc.findMany({
     where: {
         
-      folderId: searchParams.folderId,
-      title: {
-        search: searchParams.title,
-      },
+      folderId: folderId,
       userId: id
     },
     orderBy: {
       createdAt: "desc",
-    },
-  });
-
-  const folders = await prisma_db.folder.findMany({
-    where: {
-        userId: id
     },
   });
 
@@ -63,25 +59,21 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
   })) : [];
 
 
-  const serializedFolders = Array.isArray(folders) ? folders.map((folder) => ({
-    ...folder,
-  })) : [];
-
   const serializedDocs = Array.isArray(folder_docs) ? folder_docs.map((doc) => ({
     ...doc,
   })) : [];
 
 
-  console.log(folders, "FOLDERS")
+
 
   return (
     <div style={{ marginLeft: "20px", marginRight: "20px" }}>
-      <SearchInput />
+      {/* <SearchInput />
       <Folders data={folders}/>
-      {/* <Flows data={folder_contents} /> */}
-      <Flow_Dashboard initial_folders = {serializedFolders} initial_flows = {serializedFlows} initial_docs={serializedDocs} />
+      <Flows data={folder_contents} /> */}
+      <RootDashboard initial_folder = {folder} initial_flows = {serializedFlows} initial_docs={serializedDocs} />
     </div>
   );
 };
 
-export default DashboardPage;
+

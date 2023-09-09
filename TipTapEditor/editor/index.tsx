@@ -23,8 +23,8 @@ type TNote = {
 };
 
 export default function Editor({ id, defaultContent, onSave, onChange }: TNote) {
-  const [content, setContent] = useLocalStorage(
-    id,
+  const [content, setContent] = useState(
+
     defaultContent
   );
   const [saveStatus, setSaveStatus] = useState("Saved");
@@ -37,7 +37,7 @@ export default function Editor({ id, defaultContent, onSave, onChange }: TNote) 
     setContent(json)
     onChange(json);
     onSave(json);
-    await updateDoc(id, json)
+    // await updateDoc(id, json);
     // Simulate a delay in saving.
     setTimeout(() => {
       setSaveStatus("Saved");

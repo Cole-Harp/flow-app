@@ -1,25 +1,20 @@
 "use client";
-
 import { useState } from 'react';
-import TodoList from '../../..//components/day-planner/Todolist';
-import Schedule from '../../../components/day-planner/Scheduler';
-
-type DayPlannerProps = {
-  initialData: {
-    // daily_goals: string[];
-    schedule: { time: string; event: string }[];
-    todos: { text: string; completed: boolean }[];
-  };
-};
+import TodoList from '../../../components/day-planner/Todolist';
+import { Todo } from "../../../components/day-planner/Todolist";
+import DemoApp from '../../../components/day-planner/Scheduler';
 
 const DayPlanner = () => {
-  // const [dailyGoals, setDailyGoals] = useState([""]);
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
 
   return (
-    <div>
-      <Schedule />
-      <TodoList todos={todos} setTodos={setTodos} />
+    <div className='p-5 flex'>
+      <div className='w-1/3'>
+        <TodoList todos={todos} setTodos={setTodos} />
+      </div>
+      <div className='w-2/3'>
+        <DemoApp todos={todos} />
+      </div>
     </div>
   );
 };

@@ -1,56 +1,146 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import FullCalendar from '@fullcalendar/react';
+import { EventInput, formatDate } from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import { Todo } from './Todolist';
 
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import { format, parse, startOfWeek, getDay } from "date-fns";
-import enGB from "date-fns/locale/id";
-
-const locales = {
-  id: enGB
+type DemoAppProps = {
+  todos: Todo[];
 };
 
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales
-});
+let eventGuid = 0
 
-const MyCalendar = () => {
-  const [events, setEvents] = useState([
-    {
-      id: 1,
-      title: "My event",
-      allDay: false,
-      start: new Date("2021-02-21T14:08:22.000000Z"),
-      end: new Date(2021, 2, 28)
+function createEventId() {
+  return String(eventGuid++)
+}
+
+
+const DemoApp: React.FC<DemoAppProps> = ({ todos }) => {
+  const [weekendsVisible, setWeekendsVisible] = useState(true);
+  const [currentEvents, setCurrentEvents] = useState([]);
+
+const todosToEvents = (todos: Todo[]): EventInput[] => {
+  return todos
+    .filter((todo) => todo.dueDate !== null)
+    .map((todo) => ({
+      id: createEventId(),
+      title: todo.text,
+      start: todo.dueDate,
+      allDay: todo.dueTime === null,
+      extendedProps: {
+        dueTime: todo.dueTime,
+      },
+    }));
+};
+
+  const renderSidebar = () => {
+    return (
+      <div className='demo-app-sidebar'>
+        <div className='demo-app-sidebar-section'>
+          <h2>Instructions</h2>
+          <ul>
+            <li>Select dates and you will be prompted to create a new event</li>
+            <li>Drag, drop, and resize events</li>
+            <li>Click an event to delete it</li>
+          </ul>
+        </div>
+        <div className='demo-app-sidebar-section'>
+          <label>
+            <input
+              type='checkbox'
+              checked={weekendsVisible}
+              onChange={handleWeekendsToggle}
+            ></input>
+            toggle weekends
+          </label>
+        </div>
+        <div className='demo-app-sidebar-section'>
+          <h2>All Events ({currentEvents.length})</h2>
+          <ul>
+            {currentEvents.map(renderSidebarEvent)}
+          </ul>
+        </div>
+      </div>
+    );
+  };
+
+  const handleWeekendsToggle = () => {
+    setWeekendsVisible(!weekendsVisible);
+  };
+
+  const handleDateSelect = (selectInfo) => {
+    let title = prompt('Please enter a new title for your event');
+    let calendarApi = selectInfo.view.calendar;
+
+    calendarApi.unselect();
+
+    if (title) {
+      calendarApi.addEvent({
+        id: createEventId(),
+        title,
+        start: selectInfo.startStr,
+        end: selectInfo.endStr,
+        allDay: selectInfo.allDay,
+      });
     }
-  ]);
+  };
 
-  const handleAddEvent = () => {
-    const newEvent = {
-      id: 2,
-      title: "New Event",
-      allDay: false,
-      start: new Date(),
-      end: new Date()
-    };
+  const handleEventClick = (clickInfo) => {
+    if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
+      clickInfo.event.remove();
+    }
+  };
 
-    setEvents([...events, newEvent]);
+  const handleEvents = (events) => {
+    setCurrentEvents(events);
   };
 
   return (
-    <div className="App">
-      <h1>Welcome to React Big Calendar Example</h1>
-      <button onClick={handleAddEvent}>Add Event</button>
-      <Calendar
-        localizer={localizer}
-        events={events}
-        style={{ height: 500 }}
-      />
+    <div className='demo-app'>
+      {renderSidebar()}
+      <div className='demo-app-main'>
+        <FullCalendar
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay',
+          }}
+          initialView='dayGridMonth'
+          editable={true}
+          selectable={true}
+          selectMirror={true}
+          dayMaxEvents={true}
+          weekends={weekendsVisible}
+          initialEvents={todosToEvents(todos)}
+          select={handleDateSelect}
+          eventContent={renderEventContent}
+          eventClick={handleEventClick}
+          eventsSet={handleEvents}
+        />
+      </div>
     </div>
   );
 };
 
-export default MyCalendar;
+function renderEventContent(eventInfo) {
+  return (
+    <>
+      <b>{eventInfo.timeText}</b>
+      <i>{eventInfo.event.title}</i>
+    </>
+  );
+}
+
+function renderSidebarEvent(event) {
+  return (
+    <li key={event.id}>
+      <b>{formatDate(event.start, { year: 'numeric', month: 'short', day: 'numeric' })}</b>
+      <i>{event.title}</i>
+    </li>
+  );
+}
+
+export default DemoApp;

@@ -4,6 +4,7 @@ const nextConfig = {
     serverActions: true,
   },
   redirects: async () => {
+    
     return [
       {
         source: "/github",

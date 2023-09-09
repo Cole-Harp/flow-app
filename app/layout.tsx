@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
 import "./styles/globals.css"
+import 'reactflow/dist/style.css';
 import React from "react";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: 'Learn App',
@@ -18,8 +20,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           
 
           <Providers>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem key={new Date().toISOString()}>
               {children}
-              </Providers>
+              </ThemeProvider>
+          </Providers>
 
         </body>
       </html>
