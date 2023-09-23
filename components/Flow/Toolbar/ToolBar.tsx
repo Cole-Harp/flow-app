@@ -1,17 +1,24 @@
 import { Menu, PlusSquareIcon } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getConnectedEdges, getOutgoers, useReactFlow } from 'reactflow';
 import add_row from "../../../public/add-row-svgrepo-com.svg";
+import { useCompletion } from 'ai/react/dist';
+import ChatComponent from './ChatBox/ChatComponent';
+import ChatBox from './ChatBox';
+import ChatPage from './ChatBox';
 
 interface DirectoryToolbarProps {
   nodes: any[];
   edges: any[];
 }
 
-const Toolbar: React.FC<DirectoryToolbarProps> = ({ nodes, edges }) => {
+const Toolbar: React.FC<DirectoryToolbarProps> = () => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [expandedNodes, setExpandedNodes] = useState<{ [key: string]: boolean }>({});
   const [nodeToInteract, setNodeToInteract] = useState();
+  const { setCenter, setNodes, setEdges, getNodes, getEdges } = useReactFlow();
+  const nodes = getNodes();
+  const edges = getEdges();
 
   const onDragStart = (event, nodeType) => {
     event.dataTransfer.setData('application/reactflow', "blockNode", { id: generateUniqueId() });
@@ -21,8 +28,6 @@ const Toolbar: React.FC<DirectoryToolbarProps> = ({ nodes, edges }) => {
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
   };
-
-  const { setCenter, setNodes, setEdges, getNodes } = useReactFlow();
 
   const getAllChildNodes = (node) => {
     const childNodes = getOutgoers(node, nodes, edges);
@@ -124,38 +129,38 @@ const Toolbar: React.FC<DirectoryToolbarProps> = ({ nodes, edges }) => {
     };
 
 
-    const togglePlaceholderNode = (nodeId) => {
-      const nodess = getNodes();
-      const nodeToReplace = nodess.find((node) => node.id === nodeId);
-      const existingPlaceholderNode = nodess.find((node) => node.id === `placeholder-${nodeId}`);
+    const toggleLearnNode = (nodeId) => {
+      const nodeToReplace = nodes.find((node) => node.id === nodeId);
+      const learnNodeId = `learn-${nodeId}`;
+      const learnNode = nodes.find((node) => node.id === learnNodeId);
     
-      if (existingPlaceholderNode) {
-        setNodes((currentNodes) =>
-          currentNodes.map((node) => {
-            if (node.id === `placeholder-${nodeId}`) {
-              return {
-                ...node,
-                hidden: !node.hidden,
-              
-              };
-            }
-            return node;
-          })
-        );
-      } else {
-        const placeholderNode = {
-          id: `placeholder-${nodeId}`,
+      if (!learnNode) {
+        // Create a new learn node with the same position as nodeToReplace
+        const newLearnNode = {
+          id: `learn-${nodeId}`,
           type: "blockNode",
           position: nodeToReplace.position,
-          data: {},
-          hidden: false,
-        };
-        setNodes((currentNodes) => [...currentNodes, placeholderNode]);
+          data: { ...nodeToReplace.data } }
+
+
+    
+        setNodes((nds) => [...nds, newLearnNode]);
+      } else {
+        // Toggle the hidden attribute of the learn node
+        setNodes((nds) =>
+          nds.map((n) => {
+            if (n.id === learnNodeId) {
+              return { ...n, hidden: !n.hidden };
+            }
+            return n;
+          })
+        );
       }
     };
+
     
     const handleCheckboxChange = (event, node) => {
-      togglePlaceholderNode(node.id);
+      toggleLearnNode(node.id);
     };
 
     const renderNode = (node, depth) => {
@@ -172,11 +177,6 @@ const Toolbar: React.FC<DirectoryToolbarProps> = ({ nodes, edges }) => {
     
       return (
         <div className="directory-toolbar p-1" key={node.id} style={{ marginLeft: `${indentation}px` }}>
-          <input
-            type="checkbox"
-            id={node.id}
-            onChange={(event) => handleCheckboxChange(event, node)}
-          />
           {isRootNode && hasChildren ? (
             <button onClick={() => toggleNodeExpansion(node)}>▼</button>
           ) : null}
@@ -186,6 +186,12 @@ const Toolbar: React.FC<DirectoryToolbarProps> = ({ nodes, edges }) => {
           >
             {firstLine}
           </button>
+          <input
+            type="checkbox"
+            className=" ml-1"
+            id={node.id}
+            onChange={(event) => handleCheckboxChange(event, node)}
+          />
           {isNodeExpanded(node.id) && renderChildNodes(node)}
         </div>
       );
@@ -194,8 +200,8 @@ const Toolbar: React.FC<DirectoryToolbarProps> = ({ nodes, edges }) => {
     return (
       <div className="p-1">
         {nodes
-          .filter(node => getNodeDepth(node, nodes, edges) === 0)
-          .map(node => renderNode(node, 0))}
+                .filter(node => getNodeDepth(node, nodes, edges) === 0 && !node.id.startsWith("learn-"))
+                .map(node => renderNode(node, 0))}
       </div>
     );
   }
@@ -216,6 +222,11 @@ const Toolbar: React.FC<DirectoryToolbarProps> = ({ nodes, edges }) => {
             </div>
             <div className='flex flex-col transition-all duration-500 ease-out'>
               {nodeDir(nodes, edges, handleNodeClick)}
+            </div>
+            <div>
+              {/* <ChatPage params={{
+                chatId: '1'
+              }}/> */}
             </div>
           </aside>
         </div>

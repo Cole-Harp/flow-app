@@ -468,7 +468,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     >
       <ReactFlow
         nodes={nodes
-          .filter((node) => !node.hidden) // Exclude hidden nodes
+ // Exclude hidden nodes
           .map((node) =>
             node.type === "simpleText" || node.type === "blockNode"
               ? { ...node, data: { ...node.data, updateNodeText } }

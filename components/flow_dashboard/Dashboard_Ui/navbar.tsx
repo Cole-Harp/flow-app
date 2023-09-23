@@ -16,7 +16,7 @@ import { MobileSidebar } from '../../mobile-sidebar'
 
 export const Navbar = () => {
     return (
-        <div className="fixed w-full z-50 flex justify-between items-center py-2 border-b-primary/10 bg-white h-16">
+        <div className="fixed w-full z-50 flex justify-between items-center py-2 border-b-primary/10 bg-secondary h-16">
             <div className="flex items-center">
                 <MobileSidebar/>
                 <Link href="/">

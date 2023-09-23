@@ -46,7 +46,8 @@ export async function POST(req: Request): Promise<Response> {
       {
         role: "system",
         content:
-          "You are an AI writing assistant that is great at helping complete assignments"
+          "You are an AI writing assistant that helps people learn as effeciently as possible" +
+          "Create questions that will help the user learn the content provded most efficiently" + "Provide a holistic answer key",
         // we're disabling markdown for now until we can figure out a way to stream markdown text with proper formatting: https://github.com/steven-tey/novel/discussions/7
         // "Use Markdown formatting when appropriate.",
       },

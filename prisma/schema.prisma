@@ -64,3 +64,24 @@ model Doc {
   @@index([userId])
   @@index([docId])
 }
+
+model Chat {
+  id        Int       @id @default(autoincrement())
+  pdfName   String
+  pdfUrl    String
+  createdAt DateTime  @default(now())
+  userId    String
+  fileKey   String
+  messages  Message[]
+}
+
+model Message {
+  id        Int       @id @default(autoincrement())
+  chatId    Int
+  content   String
+  createdAt DateTime  @default(now())
+  role      String    @default("system")
+  chat      Chat      @relation(fields: [chatId], references: [id])
+
+  @@index([chatId])
+}

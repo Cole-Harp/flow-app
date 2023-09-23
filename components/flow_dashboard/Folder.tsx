@@ -67,7 +67,6 @@ export function Folder({
   };
 
   const handleConfirmDocOpen = (doc: any) => {
-
       setDocToDelete(doc);
       setConfirmDocOpen(true);
   };

@@ -75,7 +75,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
   console.log(folders, "FOLDERS")
 
   return (
-    <div style={{ marginLeft: "20px", marginRight: "20px" }}>
+    <div style={{ marginLeft: "40px", marginRight: "20px", marginTop: "25px" }}>
       <SearchInput />
       <Folders data={folders}/>
       {/* <Flows data={folder_contents} /> */}

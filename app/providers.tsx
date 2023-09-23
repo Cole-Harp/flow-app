@@ -12,7 +12,7 @@ export const AppContext = createContext<{
   font: string;
   setFont: Dispatch<SetStateAction<string>>;
 }>({
-  font: "Mono",
+  font: "Default",
   setFont: () => {},
 });
 
@@ -31,7 +31,7 @@ export default function Providers({ children }: { children: ReactNode }) {
         }}
       >
         
-        <body className={cn(displayFontMapper[font], defaultFontMapper[font], "bg-white", inter.className)}>
+        <body className={cn(displayFontMapper[font], defaultFontMapper[font], "bg-white")}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem enableColorScheme>
           {children}
           </ThemeProvider>

@@ -2,7 +2,7 @@ import { Handle, Position } from "reactflow";
 import Editor from "@/TipTapEditor/editor";
 import React, { useState } from "react";
 
-interface BlockNodeProps {
+interface LearnNodeProps {
   id: string;
   data: {
     content: string;
@@ -20,7 +20,7 @@ const nodeStyle = {
 };
 
 
-const Editor_: React.FC<BlockNodeProps> = ({ id, data }) => {
+const LearnNode: React.FC<LearnNodeProps> = ({ id, data }) => {
   const { content, updateNodeText} = data
   const [localContent, setContent] = useState<string>(content);
   const handleSave = (content: string) => {
@@ -33,11 +33,11 @@ const Editor_: React.FC<BlockNodeProps> = ({ id, data }) => {
       <Handle type="target"  id="a" isConnectable={true} position={Position.Top} />
       <Handle type="target" id="b" isConnectable={true} position={Position.Left} />
       <div className="nodrag max-w-5xl" style={{ minWidth: "400px" }} >
-        <Editor id={id} onChange={setContent} onSave={handleSave} defaultContent={localContent} newQuery={null}/>
+        <Editor id={id} onChange={setContent} onSave={handleSave} defaultContent={localContent} />
       </div>
       <Handle type="source" id="a" isConnectable={true} position={Position.Bottom} />
       <Handle type="source" id="b" isConnectable={true} position={Position.Right} />
     </div>
   );
 };
-export default Editor_;
+export default LearnNode;

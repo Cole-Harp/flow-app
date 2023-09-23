@@ -1,4 +1,4 @@
-"use client";
+
 
 import { useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -18,18 +18,17 @@ import { updateDoc } from "@/lib/serv-actions/updateDoc";
 type TNote = {
   id: string;
   defaultContent: string;
+  newQuery: string;
   onSave: (content: string) => void;
   onChange: (content: string) => void;
 };
 
-export default function Editor({ id, defaultContent, onSave, onChange }: TNote) {
-  const [content, setContent] = useState(
-
-    defaultContent
-  );
+export default function Editor({ id, defaultContent, newQuery, onSave, onChange }: TNote) {
+  const [content, setContent] = useState(defaultContent);
+  const [query, setQuery] = useState(newQuery || "");
   const [saveStatus, setSaveStatus] = useState("Saved");
-
   const [hydrated, setHydrated] = useState(false);
+  const [currApi, setCurrApi] = useState('/api/generate');
 
   const debouncedUpdates = useDebouncedCallback(async ({ editor }) => {
     const json = editor.getJSON();
@@ -66,18 +65,19 @@ export default function Editor({ id, defaultContent, onSave, onChange }: TNote) 
             chars: 5000,
           }),
         );
-        // complete(e.editor.storage.markdown.getMarkdown());
         va.track("Autocomplete Shortcut Used");
-      } else {
+      } 
+      else {
         debouncedUpdates(e);
       }
     },
     autofocus: "end",
+    
   });
 
   const { complete, completion, isLoading, stop } = useCompletion({
     id: id,
-    api: "/api/generate",
+    api: currApi,
     onFinish: (_prompt, completion) => {
       editor?.commands.setTextSelection({
         from: editor.state.selection.from - completion.length,
@@ -137,13 +137,35 @@ export default function Editor({ id, defaultContent, onSave, onChange }: TNote) 
     };
   }, [stop, isLoading, editor, complete, completion.length]);
 
-  // Hydrate the editor with the content from localStorage.
+
+  const handleGenerateQuestions = () => {
+    if (!editor) return;
+    setCurrApi('/api/generateQuestions');
+    complete(`${getPrevText(editor, {
+        chars: 1000,
+      })}`);
+  };
+
+  useEffect(() => {
+    if (query) {
+      setCurrApi('/api/generate');
+      complete(query);
+      setQuery("");
+      va.track("Autocomplete Shortcut Used");
+    }
+  }, [query]);
+
+
+
+
+  // Hydrate the editor with the content.
   useEffect(() => {
     if (editor && content && !hydrated) {
       editor.commands.setContent(content);
       setHydrated(true);
     }
-  }, [editor, content, hydrated]);
+
+  }, [ editor, content, hydrated]);
 
   return (
     <div
@@ -152,12 +174,15 @@ export default function Editor({ id, defaultContent, onSave, onChange }: TNote) 
       }}
       className="relative min-h-fit w-full max-w-screen-lg border-stone-200 bg-white p-4 px-4  sm:rounded-lg sm:border sm:px-4 sm:shadow-lg "
     >
-      {/* <div className="absolute right-5 top-5 mb-5 rounded-lg bg-stone-100 px-2 py-1 text-sm text-stone-400">
+      <div className="absolute right-5 top-5 mb-5 rounded-lg bg-stone-100 px-2 py-1 text-sm text-stone-400">
         {saveStatus}
-      </div> */}
+      </div>
       {editor && <EditorBubbleMenu editor={editor} />}
       {editor?.isActive("image") && <ImageResizer editor={editor} />}
       <EditorContent editor={editor} />
+      {id.startsWith("learn-") && (
+        <button onClick={handleGenerateQuestions}>Generate Questions</button>
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import "./styles/globals.css"
 import 'reactflow/dist/style.css';
 import React from "react";
 import { ThemeProvider } from "@/components/theme-provider";
+import QueryProvider from '@/components/Flow/Toolbar/ChatBox/Providers';
 
 export const metadata: Metadata = {
   title: 'Learn App',
@@ -20,9 +21,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           
 
           <Providers>
+          <QueryProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem key={new Date().toISOString()}>
               {children}
               </ThemeProvider>
+              </QueryProvider>
           </Providers>
 
         </body>
