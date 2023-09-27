@@ -6,7 +6,7 @@ import { Folder } from "@prisma/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CreateFolderDialog } from "../Dialogs/CreateFolderDialog";
 import { cn } from "@/lib/utils";
-import { createFolder } from "@/lib/serv-actions/createFolder";
+import { createFolder } from "@/lib/serv-actions/Folder";
 
 interface FlowProps {
   data: Folder[];

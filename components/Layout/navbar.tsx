@@ -11,8 +11,8 @@ import { Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { UserButton } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
-import { ModeToggle } from "../../mode-toggle"
-import { MobileSidebar } from '../../mobile-sidebar'
+import { ModeToggle } from "../mode-toggle"
+import { MobileSidebar } from './mobile-sidebar'
 
 export const Navbar = () => {
     return (

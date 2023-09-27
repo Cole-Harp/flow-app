@@ -8,48 +8,44 @@ import {
     TextField,
   } from "@mui/material";
   
-  type CreateFlowDialogProps = {
+  type CreateDialogProps = {
     open: boolean;
     onClose: () => void;
     onCreate: () => void;
     title: string;
+    label: string;
     onTitleChange: (value: string) => void;
   };
   
-  export function CreateDocDialog({
+  export function CreateDialog({
     open,
     onClose,
     onCreate,
     title,
+    label,
     onTitleChange,
-  }: CreateFlowDialogProps) {
-    const handleCreateNewDoc = () => {
-      onCreate();
-    };
-  
+  }: CreateDialogProps) {
     return (
       <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Create New Doc</DialogTitle>
+        <DialogTitle>{title}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Please enter a title for the new flow.
+            Please enter a title for the new {label.toLowerCase()}.
           </DialogContentText>
           <TextField
             autoFocus
             margin="dense"
             id="title"
-            label="Flow Title"
+            label={label}
             type="text"
             fullWidth
-            value={title}
             onChange={(e) => onTitleChange(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleCreateNewDoc}>Create</Button>
+          <Button onClick={onCreate}>Create</Button>
         </DialogActions>
       </Dialog>
     );
   }
-  

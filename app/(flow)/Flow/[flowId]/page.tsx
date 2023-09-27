@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import ReactFlowWrapper from "../../../../components/Flow/FlowComponent";
-import { getFlow } from "../../../../lib/serv-actions/getFlow";
+import { getFlow } from "../../../../lib/serv-actions/Flow";
 
 
 
@@ -26,7 +26,6 @@ export default function Flow(context: { params: { flowId: string; }; }) {
     return <div>Loading...</div>;
   }
 
-  // Wrap the ReactFlowWrapper component with AppContext.Consumer
   return (
       <div className="dark:border-inherit text-inherit to-inherit">
         <ReactFlowWrapper {...flow} />

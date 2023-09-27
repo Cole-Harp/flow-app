@@ -1,5 +1,5 @@
-import { Navbar } from "@/components/flow_dashboard/Dashboard_Ui/navbar";
-import { Sidebar } from "@/components/flow_dashboard/Dashboard_Ui/sidebar";
+import { Navbar } from "@/components/Layout/navbar";
+import { Sidebar } from "@/components/Layout/sidebar";
 import React from "react";
 
 

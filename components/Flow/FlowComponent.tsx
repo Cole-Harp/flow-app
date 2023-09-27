@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 
 import ReactFlow, {
   ReactFlowProvider,
@@ -39,18 +39,13 @@ import DropdownMenu from "components/Flow/FlowUtils/DropdownMenu";
 
 import { FlowInstance } from "@prisma/client";
 import { IconButton } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import UpgradeIcon from "@mui/icons-material/Upgrade";
-import { updateFlow } from "@/lib/serv-actions/updateFlow";
+import { updateFlow } from "@/lib/serv-actions/Flow";
 import ToolBar from "components/Flow/Toolbar/ToolBar";
-import useExpandCollapse from "components/Flow/FlowUtils/useExpandCollapse";
-import useAnimatedNodes from "components/Flow/FlowUtils/useAnimatedNode";
-import ExpandsionNode from "components/Flow/Nodes/ExpansionNode";
 
 const nodeTypes = {
   simpleText: SimpleTextNode,
   blockNode: BlockNode,
-  ExpandsionNode: ExpandsionNode,
 };
 
 const defaultEdgeOptions = {
@@ -72,7 +67,6 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   const { undo, redo, canUndo, canRedo, takeSnapshot } = useUndoRedo();
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const edgeUpdateSuccessful = useRef(true);
-  const [collapsedNodes, setCollapsedNodes] = useState<string[]>([]);
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
@@ -125,26 +119,6 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     },
     [undraggableNodeIds],
   );
-
-  // const toggleNodeExpansion = (nodeId) => {
-  //         setNodes((nds) =>
-  //         nds.map((n) => {
-  //           console.log("NODE", n);
-  //           if (nodes.some((parentNode) => parentNode.id === nodeId)) {
-  //             return { ...n, hidden: !n.hidden };
-  //           }
-  //           console.log("NODE 2", n);
-  //           return n;
-  //         })
-  //       );
-  // };
-
-
-  const hide = (hidden) => (nodeOrEdge) => {
-    nodeOrEdge.hidden = !hidden;
-    return nodeOrEdge;
-  };
-  
   
   const getAllChildNodes = (node, nodes, edges) => {
     const childNodes = getOutgoers(node, nodes, edges);
@@ -157,50 +131,6 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   
     return allChildNodes;
   };
-  
-  const onExpandOrCollapse = useCallback(
-    (toolbar_nodes) => {
-      const node = toolbar_nodes[0];
-  
-      // Toggle the expanded state of the clicked node
-      console.log("Clicked", node);
-      console.log("PASSED");
-  
-      // Get the child nodes and connected edges of the clicked node
-      const childNodes = getAllChildNodes(node, nodes, edges);
-      const connectedEdges = getConnectedEdges(childNodes, edges);
-      console.log("Child Nodes", childNodes);
-  
-      // Toggle the isHidden attribute for child nodes and connected edges
-      if (node) {
-        setNodes((nds) =>
-          nds.map((n) => {
-            console.log("NODE", n);
-            if (childNodes.some((childNode) => childNode.id === n.id)) {
-              return { ...n, hidden: !n.hidden };
-            }
-            console.log("NODE 2", n);
-            return n;
-          })
-        );
-  
-        setEdges((eds) =>
-          eds.map((e) => {
-            console.log(e);
-            if (connectedEdges.includes(e)) {
-              return hide(!e.hidden)(e);
-            }
-            return e;
-          })
-        );
-      }
-    },
-    [setNodes, setEdges]
-  );
-  
-
-  
-  
   
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
@@ -501,17 +431,11 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         fitViewOptions={fitViewOptions}
       >
         <Panel position="top-left">
-        <ToolBar nodes={nodes} edges={edges} />
+        <ToolBar undo={undo} redo={redo} />
           
           <IconButton edge="end" color="default" onClick={handleUpdateFlow}>
             <UpgradeIcon />
           </IconButton>
-          {/* <button disabled={canUndo} onClick={undo}>
-            undo
-          </button>
-          <button disabled={canRedo} onClick={redo}>
-            redo
-          </button> */}
         </Panel>
         <HelperLines
           horizontal={helperLineHorizontal}

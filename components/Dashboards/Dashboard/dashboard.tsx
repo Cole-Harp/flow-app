@@ -9,13 +9,14 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import flow_dashboard_css from "@/app/styles/flow_dashboard.module.css";
 import { Folder } from "@prisma/client";
-import { CreateFolderDialog } from "./Dialogs/CreateFolderDialog";
-import { Folder as FolderComponent } from "../../components/flow_dashboard/Folder";
-import { createFolder } from "@/lib/serv-actions/createFolder";
-import { deleteFolder } from "@/lib/serv-actions/deleteFolder";
-import { createFlow } from "@/lib/serv-actions/createFlow";
+import { CreateDialog } from "../Dialogs/CreateDialog";
+import { Folder as FolderComponent } from "./Folder";
+import { createFolder } from "@/lib/serv-actions/Folder";
+import { deleteFolder } from "@/lib/serv-actions/Folder";
+import { createFlow } from "@/lib/serv-actions/Flow";
+import { deleteDoc } from "@/lib/serv-actions/Doc";
+import { CreateFolderDialog } from "../Dialogs/CreateFolderDialog";
 
 interface FlowDashboardProps {
   initial_folders: Array<{
@@ -49,13 +50,11 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [folderToDelete, setFolderToDelete] = useState<Folder | null>(null);
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
-
-
   const [favoriteFolders, setFavoriteFolders] = useState([]);
   const [folders, setFolders] = useState(initial_folders || []);
   const [flowInstances, setFlowInstances] = useState(initial_flows || []);
   const [docs, setDocs] = useState(initial_docs || []);
-  
+
 
   const handleConfirmOpen = (folder?: Folder) => {
     if (folder) {
@@ -87,18 +86,17 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
   };
 
   const handleDeleteFolder = async (folderId: string) => {
-    try {
-      await deleteFolder(folderId)
-      setFolders(folders.filter((folder) => folder.folderId !== folderId));
-        handleConfirmClose();
-      
-    } catch (error) {
-      console.error("Error deleting folder:", error);
-    }
+    deleteFolder(folderId)
+    setFolders(folders.filter((folder) => folder.folderId !== folderId));
+    handleConfirmClose();
+  };
+
+  const handleDeleteDoc = async (docId: string) => {
+    setDocs(docs.filter((doc) => doc.docId !== docId));
+    handleConfirmClose();
   };
 
   const handleDeleteFlow = async (flowId: string) => {
-
     setFlowInstances(flowInstances.filter((flow) => flow.flowId !== flowId));
   };
 
@@ -117,12 +115,8 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
           >
             New Root
           </Button>
-          <CreateFolderDialog
-            open={folderDialogOpen}
-            onClose={() => setFolderDialogOpen(false)}
-            onCreate={handleCreateNewFolder} />
         </div>
-      </div><Paper elevation={1} className=" bg-secondary group relative transition ease-in-out delay-150 mt-2" style={{ paddingLeft: "10px", paddingRight: "10px", paddingTop:"8px", paddingBottom:"10px" }}>
+      </div><Paper elevation={1} className=" bg-secondary group relative transition ease-in-out delay-150 mt-2" style={{ paddingLeft: "10px", paddingRight: "10px", paddingTop: "8px", paddingBottom: "10px" }}>
 
           <div className="text-stone-900 font-display" style={{ display: "flex", justifyContent: "space-between" }}>
             <div className="pl-2">
@@ -206,24 +200,19 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
     <div>
       <div style={{ marginLeft: "0px", marginRight: "20px", marginTop: "8px" }}>
         <div className="flex" style={{ marginRight: "20px" }}>
-        <Typography variant="h1">
+          <Typography variant="h1">
             Roots
           </Typography>
-        <div className="absolute right-10">
-          <Button
-            variant="contained"
+          <div className="absolute right-10">
+            <Button
+              variant="contained"
 
-            onClick={() => setFolderDialogOpen(true)}
-            className="flex bg-stone-300 font-display text-stone-900"
-          >
-            New Folder
-          </Button>
-          <CreateFolderDialog
-            open={folderDialogOpen}
-            onClose={() => setFolderDialogOpen(false)}
-            onCreate={handleCreateNewFolder}
-          />
-        </div>
+              onClick={() => setFolderDialogOpen(true)}
+              className="flex bg-stone-300 font-display text-stone-900"
+            >
+              New Folder
+            </Button>
+          </div>
         </div>
         <div className="mt-1">
           <div style={{ marginTop: "1px" }}>
@@ -231,13 +220,13 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
               const folderFlowInstances = flowInstances.filter(
                 (flowInstance) => flowInstance.folderId === folder.folderId,
               );
-  
+
               const folderDocs = docs.filter(
                 (doc) => doc.folderId === folder.folderId,
               );
-  
+
               return (
-                <div className = "mb-3" key={folder.folderId}>
+                <div className="mb-3" key={folder.folderId}>
                   <FolderComponent
                     folder={folder}
                     flowInstances={folderFlowInstances}
@@ -247,15 +236,18 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
                     title={""}
                     onDeleteFolder={handleDeleteFolder}
                     onFavoriteFolder={handleFavoriteFolder}
-                    docs={folderDocs} onDeleteDoc={function (id: string): void {
-                      throw new Error("Function not implemented.");
-                    } }                  />
+                    docs={folderDocs} onDeleteDoc={handleDeleteDoc} />
                 </div>
               );
             })}
           </div>
         </div>
       </div>
+      <CreateFolderDialog
+        open={folderDialogOpen}
+        onClose={() => setFolderDialogOpen(false)}
+        onCreate={handleCreateNewFolder}
+      />
     </div>
   );
 }

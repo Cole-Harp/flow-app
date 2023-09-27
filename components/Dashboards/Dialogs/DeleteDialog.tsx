@@ -1,4 +1,3 @@
-
 import {
     Dialog,
     DialogTitle,
@@ -8,34 +7,36 @@ import {
     Button,
   } from "@mui/material";
   
-  type DeleteFlowDialogProps = {
+  type DeleteDialogProps = {
     open: boolean;
     onClose: () => void;
     onDelete: (id: string) => void;
-    docToDelete: any;
+    title: string;
+    itemToDelete: any;
   };
   
-  export function DeleteDocDialog({
+  export function DeleteDialog({
     open,
     onClose,
     onDelete,
-    docToDelete,
-  }: DeleteFlowDialogProps) {
+    title,
+    itemToDelete,
+  }: DeleteDialogProps) {
     return (
       <Dialog open={open} onClose={onClose}>
-        <DialogTitle>Delete Doc</DialogTitle>
+        <DialogTitle>{title}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete the Doc:{" "}
-            {docToDelete ? docToDelete.name : ""}?
+            Are you sure you want to delete the {title}:{" "}
+            {itemToDelete ? itemToDelete.name : ""}?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
           <Button
             onClick={() => {
-              if (docToDelete) {
-                onDelete(docToDelete.docId);
+              if (itemToDelete) {
+                onDelete(itemToDelete.id);
               }
             }}
             color="secondary"
@@ -46,4 +47,3 @@ import {
       </Dialog>
     );
   }
-  

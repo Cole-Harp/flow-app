@@ -7,12 +7,9 @@ import {
   Grid,
   Typography,
 } from "@mui/material";
-import flow_dashboard_css from "@/app/styles/flow_dashboard.module.css";
 import { Folder } from "@prisma/client";
-import { Folder as FolderComponent } from "../../components/flow_dashboard/Folder";
-import { createFolder } from "@/lib/serv-actions/createFolder";
-import { deleteFolder } from "@/lib/serv-actions/deleteFolder";
-import { createFlow } from "@/lib/serv-actions/createFlow";
+import { Folder as FolderComponent } from "./Folder";
+import { createFlow } from "@/lib/serv-actions/Flow";
 
 interface FlowDashboardProps {
   initial_folder: {

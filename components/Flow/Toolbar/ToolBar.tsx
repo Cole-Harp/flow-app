@@ -1,18 +1,15 @@
 import { Menu, PlusSquareIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { getConnectedEdges, getOutgoers, useReactFlow } from 'reactflow';
-import add_row from "../../../public/add-row-svgrepo-com.svg";
-import { useCompletion } from 'ai/react/dist';
-import ChatComponent from './ChatBox/ChatComponent';
-import ChatBox from './ChatBox';
-import ChatPage from './ChatBox';
+
 
 interface DirectoryToolbarProps {
-  nodes: any[];
-  edges: any[];
+  undo: () => void;
+  redo: () => void;
 }
 
-const Toolbar: React.FC<DirectoryToolbarProps> = () => {
+const Toolbar: React.FC<DirectoryToolbarProps> = (props) => {
+  const { undo, redo } = props;
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [expandedNodes, setExpandedNodes] = useState<{ [key: string]: boolean }>({});
   const [nodeToInteract, setNodeToInteract] = useState();
@@ -21,7 +18,7 @@ const Toolbar: React.FC<DirectoryToolbarProps> = () => {
   const edges = getEdges();
 
   const onDragStart = (event, nodeType) => {
-    event.dataTransfer.setData('application/reactflow', "blockNode", { id: generateUniqueId() });
+    event.dataTransfer.setData('application/reactflow', nodeType, { id: `node-${Math.random().toString(36)}` });
     event.dataTransfer.effectAllowed = 'move';
   };
 
@@ -133,17 +130,18 @@ const Toolbar: React.FC<DirectoryToolbarProps> = () => {
       const nodeToReplace = nodes.find((node) => node.id === nodeId);
       const learnNodeId = `learn-${nodeId}`;
       const learnNode = nodes.find((node) => node.id === learnNodeId);
-    
+
       if (!learnNode) {
         // Create a new learn node with the same position as nodeToReplace
         const newLearnNode = {
           id: `learn-${nodeId}`,
           type: "blockNode",
           position: nodeToReplace.position,
-          data: { ...nodeToReplace.data } }
+          data: { ...nodeToReplace.data }
+        }
 
 
-    
+
         setNodes((nds) => [...nds, newLearnNode]);
       } else {
         // Toggle the hidden attribute of the learn node
@@ -158,7 +156,7 @@ const Toolbar: React.FC<DirectoryToolbarProps> = () => {
       }
     };
 
-    
+
     const handleCheckboxChange = (event, node) => {
       toggleLearnNode(node.id);
     };
@@ -168,13 +166,13 @@ const Toolbar: React.FC<DirectoryToolbarProps> = () => {
       const isRootNode = depth === 0;
       const hasChildren = edges.some(edge => edge.source === node.id);
       const content = node.data ? node.data.content ?? "" : "";
-    
+
       let firstLine = 'No First Line';
-    
+
       if (content && content.content && content.content.length > 0 && content.content[0].content && content.content[0].content.length > 0) {
         firstLine = content.content[0].content[0].text;
       }
-    
+
       return (
         <div className="directory-toolbar p-1" key={node.id} style={{ marginLeft: `${indentation}px` }}>
           {isRootNode && hasChildren ? (
@@ -200,23 +198,30 @@ const Toolbar: React.FC<DirectoryToolbarProps> = () => {
     return (
       <div className="p-1">
         {nodes
-                .filter(node => getNodeDepth(node, nodes, edges) === 0 && !node.id.startsWith("learn-"))
-                .map(node => renderNode(node, 0))}
+          .filter(node => getNodeDepth(node, nodes, edges) === 0 && !node.id.startsWith("learn-"))
+          .map(node => renderNode(node, 0))}
       </div>
     );
   }
 
-  const generateUniqueId = () => {
-    return `node-${Math.random().toString(36)}`;
-  };
 
 
   return (
     <div className="">
+
       <button onClick={toggleDropdown}><Menu /></button>
       {isDropdownVisible && (
         <div className='border border-1 border-black rounded' >
           <aside className=" bg-white border-border border-8 p-3">
+            <div>
+            <button className="border border-white border-rounded"  disabled={false} onClick={undo}>
+              undo
+            </button>
+            <button disabled={false} onClick={redo}>
+              redo
+            </button>
+            </div>
+
             <div className="dndnode input align-middle border-border border-8 rounded" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }} onDragStart={(event) => onDragStart(event, 'blockNode')} draggable>
               <PlusSquareIcon size={50} className='p-1' />
             </div>

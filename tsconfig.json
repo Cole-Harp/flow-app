@@ -24,6 +24,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/**/**/**/*.ts", "**/**/**/**/*.tsx", ".next/types/**/*.ts", "app/(root)/(routes)/Root/New_Flow"],
+  "include": ["next-env.d.ts", "**/**/**/**/*.ts", "**/**/**/**/*.tsx", ".next/types/**/*.ts", "app/(root)/(routes)/Root/New_Flow", "components/Dashboards/Root_Dashboard"],
   "exclude": ["node_modules", "./TipTapEditor/editor/components/node-selector.tsx"]
 }

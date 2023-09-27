@@ -13,18 +13,19 @@ import DEFAULT_EDITOR_CONTENT from "./default-content";
 import { EditorBubbleMenu } from "./components/EditorBubbleMenu";
 import { getPrevText } from "./getPrevText";
 import { ImageResizer } from "./image-resizer";
-import { updateDoc } from "@/lib/serv-actions/updateDoc";
+import { updateDoc } from "@/lib/serv-actions/Doc";
+import { JsonValue } from "@prisma/client/runtime/library";
 
 type TNote = {
   id: string;
-  defaultContent: string;
+  defaultContent: JsonValue;
   newQuery: string;
   onSave: (content: string) => void;
   onChange: (content: string) => void;
 };
 
 export default function Editor({ id, defaultContent, newQuery, onSave, onChange }: TNote) {
-  const [content, setContent] = useState(defaultContent);
+  const [content, setContent] = useState(defaultContent as string);
   const [query, setQuery] = useState(newQuery || "");
   const [saveStatus, setSaveStatus] = useState("Saved");
   const [hydrated, setHydrated] = useState(false);

@@ -14,7 +14,10 @@ import SlashCommand from "./slash-command";
 import { InputRule } from "@tiptap/core";
 import UploadImagesPlugin from "@/TipTapEditor/editor/plugins/upload-images";
 import UpdatedImage from "../updated-image";
+
 import { Document } from '@tiptap/extension-document';
+import { Code } from "lucide-react";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 
 const CustomImage = TiptapImage.extend({
   addProseMirrorPlugins() {
