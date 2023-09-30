@@ -1,9 +1,14 @@
+
 import type { Metadata } from 'next'
-import { ClerkProvider } from '@clerk/nextjs'
+import {
+  ClerkProvider
+} from "@clerk/nextjs";
 import "./styles/globals.css"
 import 'reactflow/dist/style.css';
 import React from "react";
 import { ThemeProvider } from "@/components/theme-provider";
+import Providers from './providers';
+
 
 
 export const metadata: Metadata = {
@@ -11,9 +16,9 @@ export const metadata: Metadata = {
   description: 'W',
 }
 
-import Providers from './providers';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
@@ -23,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Providers>
               <ThemeProvider attribute="class" defaultTheme="dark" enableSystem key={new Date().toISOString()}>
                 {children}
+
               </ThemeProvider>
           </Providers>
 

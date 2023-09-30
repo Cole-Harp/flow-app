@@ -17,6 +17,7 @@ import { deleteFolder } from "@/lib/serv-actions/Folder";
 import { createFlow } from "@/lib/serv-actions/Flow";
 import { deleteDoc } from "@/lib/serv-actions/Doc";
 import { CreateFolderDialog } from "../Dialogs/CreateFolderDialog";
+import { SearchInput } from "../Dashboard_Ui/search-input";
 
 interface FlowDashboardProps {
   initial_folders: Array<{
@@ -204,13 +205,14 @@ const Flow_Dashboard: React.FC<FlowDashboardProps> = ({ initial_folders, initial
             Roots
           </Typography>
           <div className="absolute right-10">
+            
             <Button
               variant="contained"
 
               onClick={() => setFolderDialogOpen(true)}
               className="flex bg-stone-300 font-display text-stone-900"
             >
-              New Folder
+              New Root
             </Button>
           </div>
         </div>

@@ -3,6 +3,7 @@ import prisma_db from "@/lib/prisma_db";
 import { Folders } from "@/components/Dashboards/Dashboard_Ui/folders";
 import Flow_Dashboard from "@/components/Dashboards/Dashboard/dashboard";
 import { FindOrCreateUser } from "@/lib/serv-actions/Auth";
+import { Search } from "lucide-react";
 
 
 interface DashboardPageProps {
@@ -69,11 +70,11 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
 
 
   console.log(folders, "FOLDERS")
-
+  
   return (
+
+
     <div  className=" ml-10 mr-5 mt-6">
-      <SearchInput />
-      <Folders data={folders}/>
       <Flow_Dashboard initial_folders = {serializedFolders} initial_flows = {serializedFlows} initial_docs={serializedDocs} />
     </div>
   );

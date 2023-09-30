@@ -41,14 +41,29 @@ export async function getFlow(flowId: string) {
 
 export const updateFlow = async (
     flowId: string,
-    nodes: any,
-    edges: any,
+    nodes?: any,
+    edges?: any,
+    title?: string,
 ) => {
     await prisma_db.flowInstance.update({
         where: { flowId },
         data: {
             nodes: nodes,
             edges: edges,
+            title: title,
         },
     });
 }
+
+export const updateFlowTitle = async (
+    flowId: string,
+    title: string,
+) => {
+    await prisma_db.flowInstance.update({
+        where: { flowId },
+        data: {
+            title: title,
+        },
+    });
+}
+

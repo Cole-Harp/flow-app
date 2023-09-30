@@ -1,5 +1,7 @@
-import { Navbar } from "@/components/Layout/navbar";
-import { Sidebar } from "@/components/Layout/sidebar";
+import { ExampleNavbar, Navbar } from "@/components/Layout/navbar";
+import { ExampleSidebar, Sidebar } from "@/components/Layout/sidebar";
+import { findOrCreateUser } from "@/lib/serv-actions/User";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 import React from "react";
 
 
@@ -14,14 +16,27 @@ const RootLayout = ({
   children: React.ReactNode
 }) => {
   return (
-    <div className = "h-full">
-      <Navbar />
-      <div className="hidden md:flex mt-16 h-full w-20 flex-col fixed inset-y-0">
-        <Sidebar />
-      </div>
-      <main className = "md:pl-20 pt-16 h-full">
-        {children}
-      </main>
+    <div className="h-full">
+      <SignedIn>
+        <Navbar />
+
+        <div className="hidden md:flex mt-16 h-full w-20 flex-col fixed inset-y-0">
+          <Sidebar />
+        </div>
+        <main className="md:pl-20 pt-16 h-full">
+          {children}
+        </main>
+      </SignedIn>
+      <SignedOut>
+        <ExampleNavbar />
+
+        <div className="hidden md:flex mt-16 h-full w-20 flex-col fixed inset-y-0">
+          <ExampleSidebar />
+        </div>
+        <main className="md:pl-20 pt-16 h-full">
+          {children}
+        </main>
+      </SignedOut>
     </div>
   )
 }
