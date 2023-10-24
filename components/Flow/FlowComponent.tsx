@@ -44,7 +44,6 @@ import UpgradeIcon from "@mui/icons-material/Upgrade";
 import { updateFlow } from "@/lib/serv-actions/Flow";
 import ToolBar from "components/Flow/Toolbar/ToolBar";
 import { useDebounce } from "use-debounce";
-import DrawingLayer from "./FlowUtils/DrawingCanvas";
 import { ColorDropdown } from "./FlowUtils/ColorPicker";
 
 const nodeTypes = {
