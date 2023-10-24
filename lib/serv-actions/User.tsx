@@ -3,12 +3,12 @@
 import { auth } from "@clerk/nextjs";
 import prisma_db from "@/lib/prisma_db";
 
-export async function findOrCreateUser() {
+export async function getUser() {
   console.log("MADE IT?");
   const userId = auth().userId;
   const existingUser = await prisma_db.user.findUnique({
     where: {
-      clerkUserId: userId,
+      id: userId,
     },
   });
 
@@ -20,7 +20,7 @@ export async function findOrCreateUser() {
     const userName = user.username;
     const newUser = await prisma_db.user.create({
       data: {
-        clerkUserId: userId,
+        id: userId,
         email: userEmail,
         name: userName,
       },

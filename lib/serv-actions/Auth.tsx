@@ -5,9 +5,10 @@ import { cache } from "react"; // Cache to reduce query, Should also be changed 
 export async function FindOrCreateUser() {
   console.log("MADE IT?");
   const userId = auth().userId;
+  console.log(userId)
   const existingUser = await prisma_db.user.findUnique({
     where: {
-      clerkUserId: userId,
+      id: userId,
     },
   });
 
@@ -15,11 +16,11 @@ export async function FindOrCreateUser() {
     return existingUser;
   } else {
     const user = auth().user
-    const userEmail = user?.emailAddresses[0].toString() ?? null;
-    const userName = user?.username ?? null;
+    const userEmail = user?.emailAddresses[0].toString() ?? "empty";
+    const userName = user?.username ?? "empty";
     const newUser = await prisma_db.user.create({
       data: {
-        clerkUserId: userId,
+        id: userId,
         email: userEmail,
         name: userName,
       },
@@ -42,11 +43,11 @@ export const isAdmin = cache(async () => {
     try {
       const user = await prisma_db.user.findUnique({
         where: {
-          clerkUserId: clerkId,
+          id: clerkId,
         },
       });
   
-      if (user.clerkUserId == userId) {
+      if (user.id == userId) {
         return { isAdmin: true, user: user };
       } else {
         return { isAdmin: true, user: user };

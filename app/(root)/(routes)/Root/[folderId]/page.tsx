@@ -8,7 +8,7 @@ import { getFolder } from "@/lib/serv-actions/Folder";
 export default async function Flow(context: { params: { folderId: string; }; }) {
   const { folderId } = context.params as { folderId: string };
   console.log(folderId)
-  const id = (await FindOrCreateUser()).clerkUserId;
+  const id = (await FindOrCreateUser()).id;
   const folder = await getFolder(folderId);
 
   if (!folder) {

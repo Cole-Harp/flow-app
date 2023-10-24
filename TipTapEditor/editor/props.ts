@@ -3,7 +3,7 @@ import { startImageUpload } from "@/TipTapEditor/editor/plugins/upload-images";
 
 export const TiptapEditorProps: EditorProps = {
   attributes: {
-    className: `prose-stone dark:prose-invert prose-headings:font-display font-default max-w-full`,
+    className: `prose-stone dark:prose-invert prose-headings:font-display font-default max-w-full max-h-full`,
   },
   handleDOMEvents: {
     keydown: (_view, event) => {

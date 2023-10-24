@@ -1,6 +1,5 @@
 import { ExampleNavbar, Navbar } from "@/components/Layout/navbar";
 import { ExampleSidebar, Sidebar } from "@/components/Layout/sidebar";
-import { findOrCreateUser } from "@/lib/serv-actions/User";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import React from "react";
 

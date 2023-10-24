@@ -7,7 +7,7 @@ async function main() {
     // Create sample users
     const user1 = await db.user.create({
       data: {
-        clerkUserId: 'ddfghfg',
+        id: 'ddfghfg',
         email: 'user12@example.com',
         name: 'User One',
       },
@@ -15,7 +15,7 @@ async function main() {
   
     const user2 = await db.user.create({
       data: {
-        clerkUserId: 'user_2TqlJnyeV76HYcNWnq36bBTwPlQ',
+        id: 'user_2TqlJnyeV76HYcNWnq36bBTwPlQ',
         email: 'user23@example.com',
         name: 'User Two',
       },

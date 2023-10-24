@@ -1,6 +1,8 @@
-import { Menu, PlusSquareIcon } from 'lucide-react';
+import { Menu, MenuIcon, PlusSquareIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { getConnectedEdges, getOutgoers, useReactFlow } from 'reactflow';
+import { faUndo, faRedo } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 
 interface DirectoryToolbarProps {
@@ -17,8 +19,8 @@ const Toolbar: React.FC<DirectoryToolbarProps> = (props) => {
   const nodes = getNodes();
   const edges = getEdges();
 
-  const onDragStart = (event, nodeType) => {
-    event.dataTransfer.setData('application/reactflow', nodeType, { id: `node-${Math.random().toString(36)}` });
+  const onDragStart = (event, nodeType, minWidth) => {
+    event.dataTransfer.setData('application/reactflow', nodeType, { data: `node-${Math.random().toString(36)}`, minWidth: minWidth });
     event.dataTransfer.effectAllowed = 'move';
   };
 
@@ -174,7 +176,7 @@ const Toolbar: React.FC<DirectoryToolbarProps> = (props) => {
       }
 
       return (
-        <div className="directory-toolbar p-1" key={node.id} style={{ marginLeft: `${indentation}px` }}>
+        <div className="directory-toolbar p-1 truncate" key={node.id} style={{ marginLeft: `${indentation}px` }}>
           {isRootNode && hasChildren ? (
             <button onClick={() => toggleNodeExpansion(node)}>▼</button>
           ) : null}
@@ -207,37 +209,40 @@ const Toolbar: React.FC<DirectoryToolbarProps> = (props) => {
 
 
   return (
-    <div className="">
-
-      <button onClick={toggleDropdown}><Menu /></button>
+    <div className="max-w-lg">
+      <button className="p-2" onClick={toggleDropdown}>
+        <MenuIcon className="w-6 h-6" />
+      </button>
       {isDropdownVisible && (
-        <div className='border border-1 border-black rounded' >
-          <aside className=" bg-white border-border border-8 p-3">
-            <div>
-            <button className="border border-white border-rounded"  disabled={false} onClick={undo}>
-              undo
-            </button>
-            <button disabled={false} onClick={redo}>
-              redo
-            </button>
+        <div className="absolute z-10">
+          <div className="bg-white border border-black rounded-lg shadow-lg ">
+            <div className="content-center align-middle">
+              <button className="border border-white rounded p-2" disabled={false} onClick={undo}>
+                <FontAwesomeIcon icon={faUndo} className="w-4 h-4" />
+              </button>
+              <button className="border border-white rounded p-2" disabled={false} onClick={redo}>
+                <FontAwesomeIcon icon={faRedo} className="w-4 h-4" />
+              </button>
             </div>
-
-            <div className="dndnode input align-middle border-border border-8 rounded" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }} onDragStart={(event) => onDragStart(event, 'blockNode')} draggable>
-              <PlusSquareIcon size={50} className='p-1' />
+            <div className="flex p-3">
+              <div onDragStart={(event) => onDragStart(event, 'blockNode', 400)} draggable className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-500 text-white">
+                <PlusSquareIcon className="w-8 h-8" />
+              </div>
+              
             </div>
-            <div className='flex flex-col transition-all duration-500 ease-out'>
-              {nodeDir(nodes, edges, handleNodeClick)}
+            <div className="p-3">
+              <div className="flex flex-col">
+                {nodeDir(nodes, edges, handleNodeClick)}
+              </div>
             </div>
-            <div>
-              {/* <ChatPage params={{
-                chatId: '1'
-              }}/> */}
+            <div className="p-3">
+              {/* <ChatPage params={{ chatId: '1' }} /> */}
             </div>
-          </aside>
+          </div>
         </div>
       )}
     </div>
   );
-};
+      }
 
 export default Toolbar;

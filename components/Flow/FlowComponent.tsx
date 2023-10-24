@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 
 import ReactFlow, {
   ReactFlowProvider,
@@ -25,6 +25,7 @@ import ReactFlow, {
   OnNodesDelete,
   OnEdgesDelete,
   updateEdge,
+  
   NodeMouseHandler,
   NodeProps,
 } from "reactflow";
@@ -42,6 +43,9 @@ import { IconButton } from "@mui/material";
 import UpgradeIcon from "@mui/icons-material/Upgrade";
 import { updateFlow } from "@/lib/serv-actions/Flow";
 import ToolBar from "components/Flow/Toolbar/ToolBar";
+import { useDebounce } from "use-debounce";
+import DrawingLayer from "./FlowUtils/DrawingCanvas";
+import { ColorDropdown } from "./FlowUtils/ColorPicker";
 
 const nodeTypes = {
   simpleText: SimpleTextNode,
@@ -115,6 +119,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         setHelperLineVertical(helperLines.vertical);
       }
 
+
       return applyNodeChanges(changes, nodes);
     },
     [undraggableNodeIds],
@@ -131,14 +136,35 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   
     return allChildNodes;
   };
+  useEffect(() => {
+  const handleUpdateFlow = () => {
+    nodes.map((node) =>
+      node.type === "simpleText" || "blockNode"
+        ? { ...node, data: { ...node.data, updateNodeText } }
+        : node,
+    )
+    console.log("updated")
+    updateFlow(flow.flowId, JSON.stringify(nodes), JSON.stringify(edges))
+  }});
+  
+  const debouncedHandleUpdateFlow = useDebounce(nodes, 2000);
+  
+  useEffect(() => {
+    nodes.map((node) =>
+      node.type === "simpleText" || "blockNode"
+        ? { ...node, data: { ...node.data, updateNodeText } }
+        : node,
+    )
+    console.log("updated")
+    updateFlow(flow.flowId, JSON.stringify(nodes), JSON.stringify(edges))
+  }, [debouncedHandleUpdateFlow, nodes, edges]);
   
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
       setNodes((nodes) => customApplyNodeChanges(changes, nodes));
 
-    },
+    }, [customApplyNodeChanges],
     
-    [customApplyNodeChanges],
   );
   
 
@@ -346,14 +372,6 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   }, [takeSnapshot]);
 
 
-  const handleUpdateFlow = async () => {
-    nodes.map((node) =>
-      node.type === "simpleText" || "blockNode"
-        ? { ...node, data: { ...node.data, updateNodeText } }
-        : node,
-    )
-    await updateFlow(flow.flowId, JSON.stringify(nodes), JSON.stringify(edges))
-  };
 
   const onDragOver = useCallback((event) => {
     event.preventDefault();
@@ -368,7 +386,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
       const type = event.dataTransfer.getData('application/reactflow');
 
       // check if the dropped element is valid
-      if (typeof type === 'undefined' || !type) {
+      if (typeof type === undefined || !type) {
         return;
       }
 
@@ -380,7 +398,9 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         id: Math.random().toString(36),
         type,
         position,
-        data: { label: `${type} node` },
+        data: { label: `${type} node`,
+                
+      },
       };
 
       setNodes((ns: any[]) => ns.concat(newNode));
@@ -425,22 +445,27 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         onInit={setReactFlowInstance}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        autoPanOnNodeDrag
+
+        
+
 
 
         fitView
         fitViewOptions={fitViewOptions}
       >
         <Panel position="top-left">
+        <div className="fixed top-2 left-2">
         <ToolBar undo={undo} redo={redo} />
-          
-          <IconButton edge="end" color="default" onClick={handleUpdateFlow}>
-            <UpgradeIcon />
-          </IconButton>
+      
+        </div>
+        
         </Panel>
         <HelperLines
           horizontal={helperLineHorizontal}
           vertical={helperLineVertical}
         />
+
         {dropdownVisible && (
           <DropdownMenu
             position={dropdownPosition}
@@ -449,7 +474,11 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
             addSimpleTextNode={addSimpleTextNode}
           />
         )}
+              
       </ReactFlow>
+
+
+
       
     </div>
   );
@@ -458,12 +487,15 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
 function ReactFlowWrapper(props: any) {
   console.log("WRAPPER", props)
   return (
+
     <ReactFlowProvider>
 
               <FlowInstancePage  {...props} flow = {...props} />
+              
 
 
     </ReactFlowProvider>
+
   );
 }
 

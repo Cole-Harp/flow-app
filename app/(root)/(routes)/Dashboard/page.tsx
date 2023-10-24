@@ -16,7 +16,7 @@ interface DashboardPageProps {
 const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
   searchParams
   
-  const id= (await FindOrCreateUser()).clerkUserId;
+  const id= (await FindOrCreateUser()).id;
     console.log(id, "HEREHERHE")
 
   
