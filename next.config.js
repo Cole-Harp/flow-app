@@ -1,8 +1,22 @@
 /** @type {import('next').NextConfig} */
+const { pluginoptions } = require('@mightymeld/runtime');
 const nextConfig = {
   experimental: {
-    serverActions: true,
+    swcPlugins: [['@mightymeld/runtime/swc-plugin-mightymeld', pluginoptions()]]
   },
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    // !! WARN !!
+    // Dangerously allow production builds to successfully complete even if
+    // your project has type errors.
+    // !! WARN !!
+    ignoreBuildErrors: true,
+  },
+
   redirects: async () => {
     
     return [

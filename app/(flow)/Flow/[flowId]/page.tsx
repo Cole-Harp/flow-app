@@ -1,35 +1,14 @@
-"use client";
 
-import React, { useEffect, useState } from "react";
 import ReactFlowWrapper from "../../../../components/Flow/FlowComponent";
 import { getFlow } from "../../../../lib/serv-actions/Flow";
 
-
-
-
-
-
-export default function Flow(context: { params: { flowId: string; }; }) {
+export default async function Flow(context: { params: { flowId: string; }; }) {
   const { flowId } = context.params as { flowId: string };
-  const [flow, setFlow] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchedFlow = await getFlow(flowId);
-      setFlow(fetchedFlow);
-    };
-
-    fetchData();
-  }, [flowId]);
-
-  if (!flow) {
-    return <div>Loading...</div>;
-  }
+  const fetchedFlow = await getFlow(flowId);
 
   return (
-      <div className="dark:border-inherit text-inherit to-inherit">
-        <ReactFlowWrapper {...flow} />
-      </div>
+
+      <ReactFlowWrapper {...fetchedFlow} />
 
   );
 }

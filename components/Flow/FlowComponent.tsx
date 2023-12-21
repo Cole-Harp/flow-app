@@ -1,5 +1,6 @@
-
+"use client";
 import React, { useState, useCallback, useRef, useEffect } from "react";
+import dagre from 'dagre';
 
 import ReactFlow, {
   ReactFlowProvider,
@@ -28,6 +29,7 @@ import ReactFlow, {
   
   NodeMouseHandler,
   NodeProps,
+  MarkerType,
 } from "reactflow";
 import "@/app/styles/prosemirror.css";
 import SimpleTextNode from "./Nodes/SimpleTextNode";
@@ -45,6 +47,7 @@ import { updateFlow } from "@/lib/serv-actions/Flow";
 import ToolBar from "components/Flow/Toolbar/ToolBar";
 import { useDebounce } from "use-debounce";
 import { ColorDropdown } from "./FlowUtils/ColorPicker";
+import { drop } from "./drop";
 
 const nodeTypes = {
   simpleText: SimpleTextNode,
@@ -52,8 +55,8 @@ const nodeTypes = {
 };
 
 const defaultEdgeOptions = {
-  animated: true,
-  type: 'smoothstep',
+  animated: false,
+  type: ConnectionLineType.SmoothStep,
 }
 
 const fitViewOptions = {
@@ -75,7 +78,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
   const reactFlowWrapper = useRef(null);
   const connectingNodeId = useRef(null);
-  const { project } = useReactFlow();
+  const { project, setCenter, screenToFlowPosition } = useReactFlow();
   
 
   const [helperLineHorizontal, setHelperLineHorizontal] = useState<
@@ -84,6 +87,8 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   const [helperLineVertical, setHelperLineVertical] = useState<
     number | undefined
   >(undefined);
+
+
 
   const customApplyNodeChanges = useCallback(
     (changes: NodeChange[], nodes: Node[]): Node[] => {
@@ -135,34 +140,20 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   
     return allChildNodes;
   };
-  useEffect(() => {
-  const handleUpdateFlow = () => {
-    nodes.map((node) =>
-      node.type === "simpleText" || "blockNode"
-        ? { ...node, data: { ...node.data, updateNodeText } }
-        : node,
-    )
-    console.log("updated")
-    updateFlow(flow.flowId, JSON.stringify(nodes), JSON.stringify(edges))
-  }});
   
-  const debouncedHandleUpdateFlow = useDebounce(nodes, 2000);
+  const debouncedHandleUpdateFlow = useDebounce(nodes, 1000);
   
   useEffect(() => {
-    nodes.map((node) =>
-      node.type === "simpleText" || "blockNode"
-        ? { ...node, data: { ...node.data, updateNodeText } }
-        : node,
-    )
     console.log("updated")
     updateFlow(flow.flowId, JSON.stringify(nodes), JSON.stringify(edges))
-  }, [debouncedHandleUpdateFlow, nodes, edges]);
+  }, [debouncedHandleUpdateFlow, nodes, edges, flow.flowId]);
   
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => {
       setNodes((nodes) => customApplyNodeChanges(changes, nodes));
+      
 
-    }, [customApplyNodeChanges],
+    }, [customApplyNodeChanges, setNodes],
     
   );
   
@@ -173,15 +164,15 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
       takeSnapshot();
       setEdges((edges) => addEdge(connection, edges));
     },
-    [ takeSnapshot],
+    [ takeSnapshot, setEdges],
   );
 
   const updateNodeText = useCallback(
-    (nodeId: string, newText: string) => {
+    (nodeId: string, newContent: string) => {
       setNodes((prevNodes) =>
         prevNodes.map((node) => {
           if (node.id === nodeId) {
-            return { ...node, data: { ...node.data, content: newText } };
+            return { ...node, data: { ...node.data, content: newContent } };
           }
           return node;
         }),
@@ -189,6 +180,21 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     },
     [setNodes],
   );
+
+  const getNodeText = useCallback(
+    (nodeId: string, text: string) => {
+      setNodes((prevNodes) =>
+        prevNodes.map((node) => {
+          if (node.id === nodeId) {
+            return { ...node, data: { ...node.data, text: text } };
+          }
+          return node;
+        }),
+      );
+    },
+    [setNodes],
+  );
+
 
   const onNodesDelete: OnNodesDelete = useCallback(
     (deleted: Node[]) => {
@@ -218,7 +224,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         }, prevEdges),
       );
     },
-    [nodes, edges, takeSnapshot],
+    [nodes, takeSnapshot, setEdges, setNodes],
   );
 
   const onEdgesDelete: OnEdgesDelete = useCallback(
@@ -238,7 +244,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   const onEdgeUpdate = useCallback((oldEdge: Edge, newConnection: any) => {
     edgeUpdateSuccessful.current = true;
     setEdges((els) => updateEdge(oldEdge, newConnection, els));
-  }, []);
+  }, [setEdges]);
 
   const onEdgeUpdateEnd = useCallback((_: any, edge: Edge) => {
     if (!edgeUpdateSuccessful.current) {
@@ -246,7 +252,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     }
 
     edgeUpdateSuccessful.current = true;
-  }, []);
+  }, [setEdges]);
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "Delete") {
@@ -267,12 +273,12 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
     const newNode = {
       id: Math.random().toString(36),
       type: "blockNode",
-      position: project({
+      position: screenToFlowPosition({
         x,
         y,
       }),
       data: {
-        content: "New Text Node",
+        content: [],
       },
       hidden: false
     };
@@ -287,7 +293,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
       }),
     );
   },
-  [setNodes, setEdges],
+  [setNodes, setEdges, screenToFlowPosition],
 );
 
   const addSimpleTextNode = useCallback(
@@ -318,7 +324,7 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         }),
       );
     },
-    [setNodes, setEdges],
+    [setNodes, setEdges, project],
   );
   const toggleDropdown = useCallback(() => {
     setDropdownVisible(!dropdownVisible);
@@ -332,31 +338,36 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
 
       if (targetIsPane) {
 
-        const position = project({
+        const position = {
           x: event.clientX,
           y: event.clientY,
-        });
-        addBlockNode(position.x-200, position.y );
+        };
+        addBlockNode(position.x, position.y );
       }
     },
-    [reactFlowWrapper, project]
+    [screenToFlowPosition]
   );
 
   const onElementDoubleClick = useCallback(
-    (event: any, element: Node | Edge | Connection) => {
-      if (isNode(element)) {
-        setUndraggableNodeIds((prevUndraggableNodeIds) => {
-          const newUndraggableNodeIds = new Set(prevUndraggableNodeIds);
-          if (newUndraggableNodeIds.has(element.id)) {
-            newUndraggableNodeIds.delete(element.id);
-          } else {
-            newUndraggableNodeIds.add(element.id);
-          }
-          return newUndraggableNodeIds;
-        });
-      }
+    (_: any, element: Node) => {
+              const zoom = 1;
+        const x = element.position.x + element.width / 2;
+        const y = element.position.y + 470;
+        setCenter(x, y, { zoom, duration: 1000 });
+      // if (isNode(element)) {
+
+      //   setUndraggableNodeIds((prevUndraggableNodeIds) => {
+      //     const newUndraggableNodeIds = new Set(prevUndraggableNodeIds);
+      //     if (newUndraggableNodeIds.has(element.id)) {
+      //       newUndraggableNodeIds.delete(element.id);
+      //     } else {
+      //       newUndraggableNodeIds.add(element.id);
+      //     }
+      //     return newUndraggableNodeIds;
+      //   });
+      // }
     },
-    [reactFlowWrapper],
+    [setCenter],
   );
 
   const onNodeDragStart: NodeDragHandler = useCallback(() => {
@@ -371,48 +382,96 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
   }, [takeSnapshot]);
 
 
+  const getLayoutedElements = (nodes, edges, rootNode, direction = 'TB') => {
+    const dagreGraph = new dagre.graphlib.Graph();
+    dagreGraph.setDefaultEdgeLabel(() => ({}));
+    dagreGraph.setGraph({ rankdir: direction });
+  
+    nodes.forEach(node => {
+      dagreGraph.setNode(node.id, { width: node.width, height: node.height });
+    });
+  
+    edges.filter(edge => 
+      nodes.some(node => node.id === edge.source || node.id === edge.target)
+    ).forEach(edge => {
+      dagreGraph.setEdge(edge.source, edge.target);
+    });
+  
+    dagre.layout(dagreGraph);
+  
+    const rootPosition = rootNode ? rootNode.position : { x: 0, y: 0 };
+  
+    const updatedNodes = nodes.map(node => {
+      const nodeWithPosition = dagreGraph.node(node.id);
+  
+          // For x-offset, you can adjust as needed. Here, I'm just keeping it centered.
+      const xOffset = (node.id !== rootNode.id) ? rootPosition.x - node.width / 2 : nodeWithPosition.x - node.width / 2;
+
+    // Ensuring all nodes are always lower than the root node
+      const yOffset = (node.id !== rootNode.id && nodeWithPosition.y < rootPosition.y) ? Math.abs(rootPosition.y*1.2) : nodeWithPosition.y - node.height / 2;
+
+  
+      return {
+        ...node,
+        position: {
+          x: nodeWithPosition.x - node.width + xOffset,
+          y: nodeWithPosition.y - node.height + yOffset,
+        },
+      };
+    });
+  
+    return { nodes: updatedNodes, edges };
+  };
+  
+  
+  
+  
+
+  const onLayout = useCallback(
+    (direction, subtreeNodes, allEdges, rootNode) => {
+      // Get updated positions for the subtree nodes
+      const { nodes: layoutedSubtreeNodes } = getLayoutedElements(
+        subtreeNodes,
+        allEdges,
+        rootNode,
+        direction,
+
+      );
+  
+      // Merge updated subtree nodes with the full set of nodes
+      const mergedNodes = nodes.map(node => 
+        layoutedSubtreeNodes.find(subtreeNode => subtreeNode.id === node.id) || node
+      );
+  
+      setNodes(mergedNodes); // Update the state with the merged nodes
+      // Don't modify the edges state, as we are not changing edges here
+    },
+    [getLayoutedElements, setNodes, nodes]
+  );
+  
+
+
 
   const onDragOver = useCallback((event) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
-  const onDrop = useCallback(
-    (event) => {
-      event.preventDefault();
-      id: Math.random().toString(36)
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
-      const type = event.dataTransfer.getData('application/reactflow');
+  const onDrop = drop(reactFlowWrapper, reactFlowInstance, setNodes);
+  const [isPanningMode, setIsPanningMode] = useState(false);
 
-      // check if the dropped element is valid
-      if (typeof type === undefined || !type) {
-        return;
-      }
+  const [selectedEdge, setSelectedEdge] = useState(null);
 
-      const position = reactFlowInstance.project({
-        x: event.clientX - reactFlowBounds.left,
-        y: event.clientY - reactFlowBounds.top,
-      });
-      const newNode = {
-        id: Math.random().toString(36),
-        type,
-        position,
-        data: { label: `${type} node`,
-                
-      },
-      };
-
-      setNodes((ns: any[]) => ns.concat(newNode));
-    },
-    [reactFlowInstance]
-  );
+  const handleEdgeClick = (edge) => {
+    setSelectedEdge(edge);
+  };
 
 
   return (
     <div
       className="wrapper"
       ref={reactFlowWrapper}
-      style={{ width: "100%", height: "100vh" }}
+      style={{ width: "100%", height: "100%", position: "fixed" }}
       
     >
       <ReactFlow
@@ -420,13 +479,17 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
  // Exclude hidden nodes
           .map((node) =>
             node.type === "simpleText" || node.type === "blockNode"
-              ? { ...node, data: { ...node.data, updateNodeText } }
+              ? { ...node, data: { ...node.data, updateNodeText, getNodeText } }
               : node
           )}
       
         edges={edges}
+        nodesConnectable={!isPanningMode}
+        nodesDraggable={!isPanningMode}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onEdgeClick={handleEdgeClick}
+      onEdgeUpdate={onEdgeUpdate}
         onConnect={onConnect}
         onNodesDelete={onNodesDelete}
         onKeyDown={handleKeyDown}
@@ -434,7 +497,6 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         onSelectionDragStart={onSelectionDragStart}
         onConnectStart={onConnectStart}
         onConnectEnd={onConnectEnd}
-        onEdgeUpdate={onEdgeUpdate}
         onEdgeUpdateStart={onEdgeUpdateStart}
         onEdgeUpdateEnd={onEdgeUpdateEnd}
         nodeTypes={nodeTypes}
@@ -445,20 +507,13 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
         onDrop={onDrop}
         onDragOver={onDragOver}
         autoPanOnNodeDrag
-
-        
-
-
-
         fitView
         fitViewOptions={fitViewOptions}
-      >
-        <Panel position="top-left">
-        <div className="fixed top-2 left-2">
-        <ToolBar undo={undo} redo={redo} />
-      
-        </div>
         
+      >
+
+        <Panel position="top-left" className="fixed left-2 top-2">
+          <ToolBar nodes={nodes} edges={edges} undo={undo} redo={redo} setIsPanningMode={setIsPanningMode} isPanningMode={isPanningMode} onLayoutChange={onLayout} />
         </Panel>
         <HelperLines
           horizontal={helperLineHorizontal}
@@ -473,12 +528,69 @@ function FlowInstancePage({ flow }: { flow: FlowInstance }) {
             addSimpleTextNode={addSimpleTextNode}
           />
         )}
-              
+        {selectedEdge && (
+        <LineCustomizationMenu
+          x={selectedEdge.sourceX}
+          y={selectedEdge.sourceY}
+          onItemClicked={(item) => {
+            // Update the edge based on the selected item
+            const updatedEdge = { ...selectedEdge };
+            switch (item.value) {
+              case "color":
+                updatedEdge.style = { ...updatedEdge.style, stroke: "red" };
+                break;
+              case "thickness":
+                updatedEdge.style = { ...updatedEdge.style, strokeWidth: 5 };
+                break;
+              case "arrow":
+                updatedEdge.style = { ...updatedEdge, markerEnd: {type: MarkerType.ArrowClosed}
+
+                };
+                break;
+            }
+            onEdgeUpdate(selectedEdge, updatedEdge);
+            setSelectedEdge(null);
+          }}
+        />
+      )}
       </ReactFlow>
 
 
 
       
+    </div>
+  );
+}
+
+function LineCustomizationMenu({ x, y, onItemClicked }) {
+  const items = [
+    { label: "Change Color", value: "color" },
+    { label: "Set Thickness", value: "thickness" },
+    { label: "Add Arrow", value: "arrow" },
+  ];
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: y,
+        left: x,
+        backgroundColor: "gray",
+        borderRadius: 4,
+        padding: 8,
+        boxShadow: "0 0 4px rgba(0, 0, 0, 0.2)",
+        zIndex: 100,
+      }}
+    >
+      {items.map((item) => (
+        <button
+          key={item.value}
+          onClick={() => onItemClicked(item)}
+          style={{ display: "block", marginBottom: 4 }}
+        >
+          {item.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -489,7 +601,7 @@ function ReactFlowWrapper(props: any) {
 
     <ReactFlowProvider>
 
-              <FlowInstancePage  {...props} flow = {...props} />
+              <FlowInstancePage flow={props} />
               
 
 

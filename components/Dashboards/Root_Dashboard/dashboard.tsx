@@ -80,10 +80,15 @@ const RootDashboard: React.FC<FlowDashboardProps> = ({ initial_folder, initial_f
     setDocs(docs.filter((doc) => doc.docId !== docId));
   };
 
-  const renderFolder = (): JSX.Element => {
-    return (
-      <div className = "mb-5" key={folder.folderId}>
-        <FolderComponent
+
+  return (
+    <div>
+      <div style={{ marginLeft: "0px", marginRight: "20px", marginTop: "12px" }}>
+        <div style={{ marginRight: "20px" }}>
+        </div>
+        <div style={{ marginTop: '24px' }}>
+          <div style={{ marginTop: "1px" }}>
+          <FolderComponent
           folder={folder}
           flowInstances={flowInstances}
           onDeleteFlow={handleDeleteFlow}
@@ -94,23 +99,6 @@ const RootDashboard: React.FC<FlowDashboardProps> = ({ initial_folder, initial_f
           onFavoriteFolder={handleFavoriteFolder}
           docs={docs} 
           onDeleteDoc={handleDeleteDoc}      />
-      </div>
-    );
-  };
-
-  return (
-    <div>
-      <div style={{ marginLeft: "0px", marginRight: "20px", marginTop: "12px" }}>
-        <div style={{ marginRight: "20px" }}>
-        </div>
-        <div style={{ marginTop: '24px' }}>
-          <Typography variant="h1">
-            Root: {folder.name}
-          </Typography>
-          <div style={{ marginTop: "1px" }}>
-            {
-              renderFolder()
-            }
           </div>
         </div>
       </div>

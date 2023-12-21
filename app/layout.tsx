@@ -8,6 +8,7 @@ import 'reactflow/dist/style.css';
 import React from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import Providers from './providers';
+import { cn } from '@/lib/utils';
 
 
 
@@ -22,17 +23,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <body >
-
-
+        <body className={cn("bg-white")}>
           <Providers>
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem key={new Date().toISOString()}>
                 {children}
-
-              </ThemeProvider>
-          </Providers>
-
+         </Providers>
         </body>
+        
       </html>
     </ClerkProvider>
   );

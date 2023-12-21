@@ -4,19 +4,9 @@ import React, { useEffect, useState } from "react";
 import Editor from "@/TipTapEditor/editor";
 import { getDoc } from "@/lib/serv-actions/Doc";
 import { updateDoc } from "@/lib/serv-actions/Doc";
-import { generateNotecards } from "@/lib/learn/GenerateNotecards";
 import { Navbar } from "@/components/Layout/navbar";
 import { Menu } from "lucide-react";
 import { JsonValue } from "@prisma/client/runtime/library";
-
-export function Notecard({content}) {
-  return (
-    <div className="bg-white rounded-lg shadow-md p-4 m-2 w-64 ">
-
-      <p className=" text-base">{content ?? "None"}</p>
-    </div>
-  );
-}
 
 
 const EditorComponent = (context: { params: { docId: string } }) => {
@@ -30,10 +20,6 @@ const EditorComponent = (context: { params: { docId: string } }) => {
     updateDoc(docId, content);
   };
 
-  const handleGenerateNotecards = async () => {
-    const generatedNotecards = await generateNotecards(localContent);
-    setNotecards(generatedNotecards);
-  };
   useEffect(() => {
     const fetchData = async () => {
       const fetchedDoc = await getDoc(docId);
@@ -61,7 +47,6 @@ const EditorComponent = (context: { params: { docId: string } }) => {
         <button onClick={toggleChatbot} className="m-4">
           <Menu />
         </button>
-        <button onClick={handleGenerateNotecards}>Generate Notecards</button>
       </div>
 
       {/* {chatbotVisible && <div>Chatbot goes here</div>} */}
@@ -77,13 +62,6 @@ const EditorComponent = (context: { params: { docId: string } }) => {
       </div>
 
       <div className="flex flex-wrap">
-  {Array.isArray(notecards) ? (
-    notecards.map((card, index) => (
-      <Notecard key={index} content={card.choices[0].text} />
-    ))
-  ) : (
-    <Notecard content={notecards} />
-  )}
 </div>
     </div>
   );
