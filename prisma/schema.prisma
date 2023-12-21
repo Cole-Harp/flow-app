@@ -5,11 +5,13 @@ generator client {
   provider = "prisma-client-js"
   previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
+
 datasource db {
   provider = "mysql"
   url = env("DATABASE_URL")
   relationMode = "prisma"
 }
+
 model User {
   id   String         @id @unique
   email         String         @unique
@@ -20,6 +22,7 @@ model User {
   
   File    File[]
   Message Message[]
+  task  Task[]
 
   stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
   stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
@@ -36,6 +39,7 @@ model Folder {
   flowInstances FlowInstance[] // One-to-Many relationship with FlowInstance
   docs          Doc[]
 
+  @@fulltext([name])
   @@index([userId])
 }
 
@@ -46,22 +50,23 @@ model FlowInstance {
   title     String @db.Text
   nodes     Json
   edges     Json
-  folderId  String?
-  folder    Folder?  @relation(fields: [flowId], references: [folderId], onDelete: Cascade)
-  userId    String // Add a foreign key to connect with the User model
-  user      User     @relation(fields: [userId], references: [id]) // Establish the relationship with the User model
+  folderId   String?    // This should be a String since folderId is a String
+  folder     Folder?    @relation(fields: [folderId], references: [folderId]) // Corrected relation
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
 
   @@index([userId])
   @@index([flowId])
+  @@index([folderId])
 }
 
 model Doc {
   docId           String   @id @default(uuid())
   title     String @db.Text
-  folderId  String?
-  folder    Folder?  @relation(fields: [docId], references: [folderId], onDelete: Cascade)
-  userId    String // Add a foreign key to connect with the User model
-  user      User     @relation(fields: [userId], references: [id]) // Establish the relationship with the User model
+  folderId   String?    // This should be a String since folderId is a String
+  folder     Folder?    @relation(fields: [folderId], references: [folderId]) // Corrected relation
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
 
   content      String
   textEditorContent Json
@@ -70,6 +75,7 @@ model Doc {
 
   @@index([userId])
   @@index([docId])
+  @@index([folderId])
 }
 
 enum UploadStatus {
@@ -112,4 +118,15 @@ model Message {
 
   @@index([userId])
   @@index([fileId])
+}
+
+
+model Task {
+  id        String     @id @default(uuid())
+  title     String
+  completed Boolean @default(false)
+  breakdown String?
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String
+  @@index([userId])
 }

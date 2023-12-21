@@ -22,10 +22,12 @@ type TNote = {
   newQuery: string;
   onSave: (content: string) => void;
   onChange: (content: string) => void;
+  onGetText: (text: string) => void;
 };
 
-export default function Editor({ id, defaultContent, newQuery, onSave, onChange }: TNote) {
+export default function Editor({ id, defaultContent, newQuery, onSave, onChange, onGetText }: TNote) {
   const [content, setContent] = useState(defaultContent as string);
+  const [text, setText] = useState<string>();
   const [query, setQuery] = useState(newQuery || "");
   const [saveStatus, setSaveStatus] = useState("Saved");
   const [hydrated, setHydrated] = useState(false);
@@ -37,6 +39,7 @@ export default function Editor({ id, defaultContent, newQuery, onSave, onChange 
     setContent(json)
     onChange(json);
     onSave(json);
+    onGetText(text);
     // await updateDoc(id, json);
     // Simulate a delay in saving.
     setTimeout(() => {
@@ -50,6 +53,8 @@ export default function Editor({ id, defaultContent, newQuery, onSave, onChange 
     onUpdate: (e) => {
       setSaveStatus("Unsaved");
       const selection = e.editor.state.selection;
+      setText(e.editor.getText());
+      console.log(text)
       
       // const json_ = JSON.stringify(e.editor.getJSON());
       // updateNodeText(id, json_);
@@ -75,6 +80,8 @@ export default function Editor({ id, defaultContent, newQuery, onSave, onChange 
     autofocus: "end",
     
   });
+
+
 
   const { complete, completion, isLoading, stop } = useCompletion({
     id: id,

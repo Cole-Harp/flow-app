@@ -1,11 +1,11 @@
-import { auth } from "@clerk/nextjs";
+import { auth, currentUser } from "@clerk/nextjs";
 import prisma_db from "../prisma_db";
 import { cache } from "react"; // Cache to reduce query, Should also be changed to a Context Hook
 
 export async function FindOrCreateUser() {
   console.log("MADE IT?");
-  const userId = auth().userId;
-  console.log(userId)
+  const userId = (await currentUser()).id;
+  console.log(userId, "ID")
   const existingUser = await prisma_db.user.findUnique({
     where: {
       id: userId,

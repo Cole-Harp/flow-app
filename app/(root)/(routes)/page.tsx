@@ -1,8 +1,16 @@
-import { SignedOut, SignInButton, SignOutButton, SignUpButton } from '@clerk/nextjs';
+import Todos from '@/components/Scheduling/Todo/Todo';
+import { getTasks } from '@/lib/serv-actions/Todo';
+import { SignedIn, SignedOut, SignInButton, SignOutButton, SignUpButton } from '@clerk/nextjs';
 
-const RootPage = () => {
+const RootPage = async () => {
+  const tasks = await getTasks();
+
+
   return (
     <div>
+      <SignedIn>
+      <Todos initTasks={tasks} />
+      </SignedIn>
       <SignedOut>
         <div className="flex justify-center items-center h-screen">
           <div className="flex flex-col items-center">

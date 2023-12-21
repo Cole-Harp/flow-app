@@ -12,7 +12,7 @@ export const SearchInput = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const categoryId = searchParams.get("categoryId");
+  const folderId = searchParams.get("folderId");
   const name = searchParams.get("name");
 
   const [value, setValue] = useState(name || "");
@@ -25,7 +25,7 @@ export const SearchInput = () => {
   useEffect(() => {
     const query = {
       name: debouncedValue,
-      categoryId: categoryId,
+      folderId: folderId,
     };
 
     const url = qs.stringifyUrl(
@@ -37,7 +37,7 @@ export const SearchInput = () => {
     );
 
     router.push(url);
-  }, [debouncedValue, router, categoryId]);
+  }, [debouncedValue, router, folderId]);
 
   useEffect(() => {
     const searchIcon = document.querySelector(".search-icon");
@@ -56,12 +56,12 @@ export const SearchInput = () => {
 
   return (
     <div className="relative pt-4">
-      <Search className="absolute h-12 w-4 top-3 left-3 right-0 text-muted-foreground search-icon" />
+      <Search className="absolute h-16 w-4 top-1 left-3 right-0 text-muted-foreground search-icon" />
       <Input
         onChange={onChange}
         value={value}
         placeholder="Search..."
-        className="pl-10 bg-primary/10 hidden search-input"
+        className="pl-10 bg-primary/10 search-input"
       />
     </div>
   );
